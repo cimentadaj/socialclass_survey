@@ -87,22 +87,31 @@ ui <- fluidEuTheme(
       uiOutput("interruptionError")
     )
   ),
-  checkboxGroupInput(
-    "propertySavings",
+  radioButtons(
+    "propertySavingsYesNo",
     "8. Do you have any property or savings?",
-    choices = list(
-      "None",
-      "I own the house where I live",
-      "I own additional property",
-      "I have savings from my own income",
-      "I have savings from inheritances or donations"
-    ),
+    choices = c("Yes", "No"),
+    selected = character(0),
     width = "100%"
+  ),
+  conditionalPanel(
+    condition = "input.propertySavingsYesNo == 'Yes'",
+    checkboxGroupInput(
+      "detailedPropertySavings",
+      "8.1 If yes, which ones?",
+      choices = list(
+        "I own the house where I live",
+        "I own additional property",
+        "I have savings from my own income",
+        "I have savings from inheritances or donations"
+      ),
+      width = "100%"
+    )
   ),
   radioMatrixInput(
     "share_input",
     rowIDsName = "9. Which of these fits best your current situation?",
-    rowIDs = c("You live with:", "You regularly share/pool resources with:", "You sporadically receive income from:"),
+    rowIDs = c("You live with:", "You regularly share/pool resources with:", "You sometimes receive income from:"),
     rowLLabels = c("", "", ""),
     choices = c("No one", "Partner", "Children under 16", "Child(ren) 16 or older", "Other relatives (fi. parents)"),
     labelsWidth = list("1px", "15px")
@@ -254,46 +263,64 @@ server <- function(input, output) {
 
   output$dynamicWageQuestion <- renderUI({
     req(input$working)
+    req(input$workedBefore)
+
+    # New question for comfort in sharing exact income
+    comfortableWithExactIncome <- radioButtons(
+      "comfortableIncome",
+      "Would you feel comfortable sharing your exact monthly income?",
+      choices = c("Yes", "No"),
+      selected = character(0),
+      width = "100%"
+    )
+
     if (input$working == "Yes") {
+      income_title <- "6. What is your monthly wage net of taxes in euros (current job)?"
+    } else {
+      income_title <- "6. What was your monthly wage net of taxes in euros (last job)?"
+    }
+
+    income_brackets <- c(
+      "Less than €1,000",
+      "€1,000 to €1,999",
+      "€2,000 to €2,999",
+      "€3,000 to €3,999",
+      "€4,000 to €4,999",
+      "€5,000 to €5,999",
+      "€6,000 to €6,999",
+      "€7,000 to €7,999",
+      "€8,000 to €8,999",
+      "€9,000 to €9,999",
+      "€10,000 and above"
+    )
+
+    # Define income brackets
+    incomeBrackets <- selectInput(
+      "incomeBrackets",
+      income_title,
+      choices = income_brackets,
+      selected = "Less than €1,000",
+      width = "100%"
+    )
+
+    if (input$working == "Yes" || input$workedBefore == "Yes") {
       fluidRow(
-        column(
-          3,
-          selectInput(
-            "currency",
-            "Currency:",
-            unique(rbcb::list_currencies()$symbol),
-            selected = "EUR"
+        column(12, comfortableWithExactIncome),
+        conditionalPanel(
+          condition = "input.comfortableIncome == 'Yes'",
+          column(
+            12,
+            textInput(
+              "monthlyWage",
+              income_title,
+              placeholder = "€1,500",
+              width = "100%"
+            )
           )
         ),
-        column(
-          9,
-          textInput(
-            "monthlyWage",
-            "6. What is your monthly wage net of taxes (current job)?",
-            placeholder = "1,500",
-            width = "100%"
-          )
-        )
-      )
-    } else if (input$workedBefore == "Yes") {
-      fluidRow(
-        column(
-          3,
-          selectInput(
-            "currency",
-            "Currency:",
-            unique(rbcb::list_currencies()$symbol),
-            selected = "EUR"
-          )
-        ),
-        column(
-          9,
-          textInput(
-            "monthlyWage",
-            "6. What was your monthly wage net of taxes (last job)?",
-            placeholder = "1,500",
-            width = "100%"
-          )
+        conditionalPanel(
+          condition = "input.comfortableIncome == 'No'",
+          column(12, incomeBrackets)
         )
       )
     }
@@ -343,8 +370,6 @@ server <- function(input, output) {
     output$interruptionError <- renderUI({
       HTML(styledMessage)
     })
-
-
   })
 
   observe({
@@ -375,6 +400,8 @@ server <- function(input, output) {
     employmentType <- ifelse(is.null(input$employmentType), "", input$employmentType)
     motherEducation <- ifelse(is.null(input$motherEducation), "", input$motherEducation)
     fatherEducation <- ifelse(is.null(input$fatherEducation), "", input$fatherEducation)
+    comfortableIncome <- ifelse(is.null(input$comfortableIncome), "", input$comfortableIncome)
+    propertySavingsYesNo <- ifelse(is.null(input$propertySavingsYesNo), "", input$propertySavingsYesNo)
 
     if (working != "Yes" & working != "") {
       iv$add_rule("workedBefore", sv_required("This field is required"))
@@ -383,7 +410,14 @@ server <- function(input, output) {
     if (working == "Yes" | workedBefore == "Yes") {
       iv$add_rule("occupation", sv_required("This field is required"))
       iv$add_rule("employmentType", sv_required("This field is required"))
-      iv$add_rule("monthlyWage", sv_required("This field is required"))
+      iv$add_rule("comfortableIncome", sv_required("This field is required"))
+
+      if (comfortableIncome == "Yes") {
+        iv$add_rule("monthlyWage", sv_required("This field is required"))
+      } else {
+        iv$add_rule("incomeBrackets", sv_required("This field is required"))
+      }
+
       iv$add_rule("careerInterruptions", sv_required("This field is required"))
 
       if (employmentType == "I am self-employed and I have employees" | employmentType == "I was self-employed and I had employees") {
@@ -404,6 +438,10 @@ server <- function(input, output) {
       iv$add_rule("childrenInterruptions", sv_required("This field is required"))
     }
 
+    if (propertySavingsYesNo == "Yes") {
+      iv$add_rule("detailedPropertySavings", sv_required("This field is required"))
+    }
+
     check_radio <- function(x) {
       is_error <- try(as.data.frame(x), silent = TRUE)
       if (inherits(is_error, "try-error")) {
@@ -415,7 +453,7 @@ server <- function(input, output) {
       }
     }
 
-    iv$add_rule("propertySavings", sv_required("This field is required"))
+    iv$add_rule("propertySavingsYesNo", sv_required("This field is required"))
     iv$add_rule("age", sv_required("This field is required"))
     iv$add_rule("gender", sv_required("This field is required"))
     iv$add_rule("countryBirth", sv_required("This field is required"))
@@ -425,33 +463,39 @@ server <- function(input, output) {
     iv$add_rule("motherEducation", sv_required("This field is required"))
     iv$enable()
 
+    handleNA <- function(inputField) {
+      ifelse(length(inputField) == 0, NA, inputField)
+    }
+
     if (iv$is_valid()) {
       responsesDF <- reactive({
-        res <-
-          data.frame(
-            Education = ifelse(length(input$education) == 0, NA, input$education),
-            Working = ifelse(length(input$working) == 0, NA, input$working),
-            WorkedBefore = ifelse(length(input$workedBefore) == 0, NA, input$workedBefore),
-            Occupation = ifelse(length(input$occupation) == 0, NA, input$occupation),
-            EmploymentType = ifelse(length(input$employmentType) == 0, NA, input$employmentType),
-            NumberOfEmployees = ifelse(length(input$numEmployees) == 0, NA, input$numEmployees),
-            Currency = ifelse(length(input$currency) == 0, NA, input$currency),
-            MonthlyWage = ifelse(length(input$monthlyWage) == 0, NA, input$monthlyWage),
-            CareerInterruptions = ifelse(length(input$careerInterruptions) == 0, NA, input$careerInterruptions),
-            ChildrenInterruptions = ifelse(length(input$childrenInterruptions) == 0, NA, input$childrenInterruptions),
-            UnemploymentInterruptions = ifelse(length(input$unemploymentInterruptions) == 0, NA, input$unemploymentInterruptions),
-            PropertySavings = ifelse(length(input$propertySavings) == 0, NA, paste(input$propertySavings, collapse = ", ")),
-            as.data.frame(input$share_input), # Here we add the radio matrix
-            motherEducation = ifelse(length(input$motherEducation) == 0, NA, input$motherEducation),
-            fatherEducation = ifelse(length(input$fatherEducation) == 0, NA, input$fatherEducation),
-            motherOccupation = ifelse(length(input$motherOccupation) == 0, NA, input$motherOccupation),
-            fatherOccupation = ifelse(length(input$fatherOccupation) == 0, NA, input$fatherOccupation),
-            Age = ifelse(length(input$age) == 0, NA, input$age),
-            Gender = ifelse(length(input$gender) == 0, NA, input$gender),
-            CountryOfBirth = ifelse(length(input$countryBirth) == 0, NA, input$countryBirth),
-            CountryOfResidence = ifelse(length(input$countryResidence) == 0, NA, input$countryResidence),
-            stringsAsFactors = FALSE
-          )
+        res <- data.frame(
+          Education = handleNA(input$education),
+          Working = handleNA(input$working),
+          WorkedBefore = handleNA(input$workedBefore),
+          Occupation = handleNA(input$occupation),
+          EmploymentType = handleNA(input$employmentType),
+          NumberOfEmployees = handleNA(input$numEmployees),
+          Currency = handleNA(input$currency),
+          ComfortableIncome = handleNA(input$comfortableIncome),
+          MonthlyWage = handleNA(input$monthlyWage),
+          IncomeBrackets = handleNA(input$incomeBrackets),
+          CareerInterruptions = handleNA(input$careerInterruptions),
+          ChildrenInterruptions = handleNA(input$childrenInterruptions),
+          UnemploymentInterruptions = handleNA(input$unemploymentInterruptions),
+          PropertySavingsYesNo = handleNA(paste(input$propertySavingsYesNo, collapse = ", ")),
+          detailedPropertySavings = handleNA(paste(input$detailedPropertySavings, collapse = ", ")),
+          as.data.frame(input$share_input), # Handling of this input might need specific logic
+          motherEducation = handleNA(input$motherEducation),
+          fatherEducation = handleNA(input$fatherEducation),
+          motherOccupation = handleNA(input$motherOccupation),
+          fatherOccupation = handleNA(input$fatherOccupation),
+          Age = handleNA(input$age),
+          Gender = handleNA(input$gender),
+          CountryOfBirth = handleNA(input$countryBirth),
+          CountryOfResidence = handleNA(input$countryResidence),
+          stringsAsFactors = FALSE
+        )
 
         names(res) <- gsub(":|\\\\", "", tolower(names(res)))
         res
