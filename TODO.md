@@ -1,0 +1,9 @@
+- [ ] Occupation too long, how do we deal with this? Same for mother/father occupation
+- [ ] Fijar que las interrupciones sean coherentes y tengan que sumar.
+- [ ] Pregunta 5.1 Personas a tu cargo: evitar numero negativos
+- [ ] Pregunta 8. Separar en 2 preguntas: si pones que no, no deberia salir las otras opciones.
+- [ ] Pregunta 9. Change sporadically for Sometimes
+- [ ] Pregunta 9. Multiple buttons should be possible for partner, children under 16, children, etc..
+- [ ] Income questions: brackets
+- [ ] Questions appear sequentially
+- [ ] Input page and outbound page
