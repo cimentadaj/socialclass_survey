@@ -57,7 +57,8 @@ ui <- fluidEuTheme(
     uiOutput("dynamicEmploymentTypeQuestion"),
     conditionalPanel(
       condition = "input.employmentType == 'I am self-employed and I have employees' || input.employmentType == 'I was self-employed and I had employees' ",
-      uiOutput("dynamicNumberEmployees")
+      uiOutput("dynamicNumberEmployees"),
+      uiOutput("numberEmployeeError")
     ),
     uiOutput("dynamicWageQuestion"),
     numericInput(
@@ -237,6 +238,7 @@ server <- function(input, output) {
         "numEmployees",
         "5.1 How many employees do you have (current job)?",
         value = 1,
+        min = 1,
         width = "100%"
       )
     } else if (input$employmentType == "I was self-employed and I had employees") {
@@ -244,6 +246,7 @@ server <- function(input, output) {
         "numEmployees",
         "5.1 How many employees did you have (last job)?",
         value = 1,
+        min = 1,
         width = "100%"
       )
     }
@@ -326,21 +329,37 @@ server <- function(input, output) {
     }
   })
 
-    observe({
-      totalInterruptions <- input$careerInterruptions
-      sumInterruptions <- input$childrenInterruptions + input$unemploymentInterruptions
+  observe({
+    totalInterruptions <- input$careerInterruptions
+    sumInterruptions <- input$childrenInterruptions + input$unemploymentInterruptions
 
-      if (totalInterruptions > 0 && totalInterruptions != sumInterruptions) {
-        errorMessage <- "The sum of interruptions for children and unemployment does not match the total reported."
-        styledMessage <- paste0('<span style="color: red; font-weight: bold;">', errorMessage, "</span>")
-      } else {
-        styledMessage <- ""
-      }
+    if (totalInterruptions > 0 && totalInterruptions != sumInterruptions) {
+      errorMessage <- "The sum of interruptions for children and unemployment does not match the total reported."
+      styledMessage <- paste0('<span style="color: red; font-weight: bold;">', errorMessage, "</span>")
+    } else {
+      styledMessage <- ""
+    }
 
-      output$interruptionError <- renderUI({
-        HTML(styledMessage)
-      })
+    output$interruptionError <- renderUI({
+      HTML(styledMessage)
     })
+
+
+  })
+
+  observe({
+    req(input$numEmployees)
+    if (input$numEmployees < 1) {
+      errorMessage <- "You need to specify 1 or more employees"
+      styledMessage <- paste0('<span style="color: red; font-weight: bold;">', errorMessage, "</span>")
+    } else {
+      styledMessage <- ""
+    }
+
+    output$numberEmployeeError <- renderUI({
+      HTML(styledMessage)
+    })
+  })
 
   observeEvent(input$submit_button, {
     # Initialize shinyvalidate
