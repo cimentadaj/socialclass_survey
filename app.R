@@ -7,6 +7,10 @@ library(rbcb)
 library(DIGCLASS)
 library(contactdata)
 
+row_ids_matrix <- c("You live with:", "You regularly share/pool resources with:", "You sometimes receive income from:")
+
+col_ids_matrix <- c("No one", "Partner", "Children under 16", "Child(ren) 16 or older", "Other relatives (fi. parents)")
+
 ui <- fluidEuTheme(
   br(),
   selectInput(
@@ -111,9 +115,9 @@ ui <- fluidEuTheme(
   radioMatrixInput(
     "share_input",
     rowIDsName = "9. Which of these fits best your current situation?",
-    rowIDs = c("You live with:", "You regularly share/pool resources with:", "You sometimes receive income from:"),
+    rowIDs = row_ids_matrix,
     rowLLabels = c("", "", ""),
-    choices = c("No one", "Partner", "Children under 16", "Child(ren) 16 or older", "Other relatives (fi. parents)"),
+    choices = col_ids_matrix,
     labelsWidth = list("1px", "15px")
   ),
   selectInput(
@@ -356,6 +360,9 @@ server <- function(input, output) {
     }
   })
 
+
+
+
   observe({
     totalInterruptions <- input$careerInterruptions
     sumInterruptions <- input$childrenInterruptions + input$unemploymentInterruptions
@@ -463,6 +470,32 @@ server <- function(input, output) {
     iv$add_rule("motherEducation", sv_required("This field is required"))
     iv$enable()
 
+    cols_multiple_check_df <- sapply(row_ids_matrix, function(q) {
+      sapply(col_ids_matrix, function(r) {
+        gsub("[:/() ]", "", paste(tolower(gsub(" ", "_", q)), tolower(gsub(" ", "_", r)), sep = "_"))
+      })
+    }, simplify = "vector")
+
+    multiple_check_df <- setNames(
+      data.frame(
+        matrix(0, nrow = 1, ncol = length(cols_multiple_check_df))
+      ),
+      cols_multiple_check_df
+    )
+
+
+    # Populate the data frame
+    for (question in names(input$share_input)) {
+      for (response in unlist(input$share_input[[question]])) {
+
+        col_name <- gsub("[:/() ]", "", paste(tolower(gsub(" ", "_", question)), tolower(gsub(" ", "_", response)), sep = "_"))
+
+        if (col_name %in% names(multiple_check_df)) {
+          multiple_check_df[1, col_name] <- 1
+        }
+      }
+    }
+
     handleNA <- function(inputField) {
       ifelse(length(inputField) == 0, NA, inputField)
     }
@@ -485,7 +518,7 @@ server <- function(input, output) {
           UnemploymentInterruptions = handleNA(input$unemploymentInterruptions),
           PropertySavingsYesNo = handleNA(paste(input$propertySavingsYesNo, collapse = ", ")),
           detailedPropertySavings = handleNA(paste(input$detailedPropertySavings, collapse = ", ")),
-          as.data.frame(input$share_input), # Handling of this input might need specific logic
+          multiple_check_df,
           motherEducation = handleNA(input$motherEducation),
           fatherEducation = handleNA(input$fatherEducation),
           motherOccupation = handleNA(input$motherOccupation),
