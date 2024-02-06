@@ -12,545 +12,573 @@ row_ids_matrix <- c("You live with:", "You regularly share/pool resources with:"
 col_ids_matrix <- c("No one", "Partner", "Children under 16", "Child(ren) 16 or older", "Other relatives (fi. parents)")
 
 ui <- fluidEuTheme(
+  title = "Social Mobility Survey",
   br(),
-  selectInput(
-    "education",
-    "1. What is the highest level of education that you have completed?",
-    c(
-      "Choose Education" = "",
-      "Early childhood education",
-      "Primary education",
-      "Lower secondary education",
-      "Upper secondary education",
-      "Post-secondary non-tertiary education",
-      "Short-cycle tertiary education",
-      "Bachelor’s or equivalent level",
-      "Master’s or equivalent level",
-      "Doctoral or equivalent level"
+  conditionalPanel(
+    condition = "input.start_survey == 0 || typeof(input.start_survey) === 'undefined'",
+    titlePanel("Shape the Future of Social Mobility in the European Union"),
+    subtitle = div(
+      style = "margin-bottom: 20px;",
+      "Your Voice Matters: Participate in Our Survey to Help Us Understand and Improve Social Mobility Across EU Countries."
     ),
-    width = "100%"
-  ),
-  selectInput(
-    "working",
-    "2. Are you currently working?",
-    c(
-      "Choose Status" = "",
-      "Yes",
-      "No, I am a full-time student",
-      "No, I am on a temporary sick leave",
-      "No, I am permanently disabled",
-      "No, I am unemployed",
-      "No, I am retired",
-      "No, I don’t want/need to work"
+    img(
+      src = "custom_css/images/eu-social-mobility.jpeg",
+      style = "width: 100%; max-width: 600px; height: auto; margin-bottom: 20px;"
     ),
-    width = "100%"
+    p("We invite you to share your experiences and views on social mobility within the European Union. Your participation will provide invaluable insights for shaping policies that aim to improve opportunities for all."),
+    actionButton("start_survey", "Begin Survey Now", class = "btn-primary"),
+    hr(),
+    h4("Frequently Asked Questions"),
+    # Example FAQ - expand as needed
+    p("How long will the survey take?", strong("Typically, the survey takes about 10 minutes to complete.")),
+    p("Is my survey response confidential?", strong("Yes, your responses are completely anonymous and will be used solely for research purposes.")),
+    tags$footer(
+      style = "margin-top: 40px;",
+      p("This survey is conducted by the European Union. Your feedback is critical for us to understand and enhance social mobility across member states.")
+    )
   ),
   conditionalPanel(
-    condition = "input.working != 'Yes' & input.working != ''",
+    condition = "input.start_survey == 1",
+    selectInput(
+      "education",
+      "1. What is the highest level of education that you have completed?",
+      c(
+        "Choose Education" = "",
+        "Early childhood education",
+        "Primary education",
+        "Lower secondary education",
+        "Upper secondary education",
+        "Post-secondary non-tertiary education",
+        "Short-cycle tertiary education",
+        "Bachelor’s or equivalent level",
+        "Master’s or equivalent level",
+        "Doctoral or equivalent level"
+      ),
+      width = "100%"
+    ),
+    selectInput(
+      "working",
+      "2. Are you currently working?",
+      c(
+        "Choose Status" = "",
+        "Yes",
+        "No, I am a full-time student",
+        "No, I am on a temporary sick leave",
+        "No, I am permanently disabled",
+        "No, I am unemployed",
+        "No, I am retired",
+        "No, I don’t want/need to work"
+      ),
+      width = "100%"
+    ),
+    conditionalPanel(
+      condition = "input.working != 'Yes' & input.working != ''",
+      radioButtons(
+        "workedBefore",
+        "3. Have you worked before?",
+        c("Yes", "No"),
+        selected = character(0),
+        width = "100%"
+      )
+    ),
+    conditionalPanel(
+      condition = "input.working == 'Yes' || input.workedBefore == 'Yes'",
+      uiOutput("dynamicOccupationQuestion"),
+      uiOutput("dynamicEmploymentTypeQuestion"),
+      conditionalPanel(
+        condition = "input.employmentType == 'I am self-employed and I have employees' || input.employmentType == 'I was self-employed and I had employees' ",
+        uiOutput("dynamicNumberEmployees"),
+        uiOutput("numberEmployeeError")
+      ),
+      uiOutput("dynamicWageQuestion"),
+      numericInput(
+        "careerInterruptions",
+        "7. Approximately, how many career interruptions have you experienced?",
+        value = 0,
+        min = 0,
+        width = "100%"
+      ),
+      conditionalPanel(
+        condition = "input.careerInterruptions > 0",
+        numericInput(
+          "childrenInterruptions",
+          "7.1 How many of the total interruptions were to take care of children or other relatives?",
+          value = 0,
+          min = 0,
+          width = "100%"
+        ),
+        numericInput(
+          "unemploymentInterruptions",
+          "7.2 How many of the total interruptions were due to unemployment?",
+          value = 0,
+          min = 0,
+          width = "100%"
+        ),
+        uiOutput("interruptionError")
+      )
+    ),
     radioButtons(
-      "workedBefore",
-      "3. Have you worked before?",
-      c("Yes", "No"),
-      selected = character(0),
-      width = "100%"
-    )
-  ),
-  conditionalPanel(
-    condition = "input.working == 'Yes' || input.workedBefore == 'Yes'",
-    uiOutput("dynamicOccupationQuestion"),
-    uiOutput("dynamicEmploymentTypeQuestion"),
-    conditionalPanel(
-      condition = "input.employmentType == 'I am self-employed and I have employees' || input.employmentType == 'I was self-employed and I had employees' ",
-      uiOutput("dynamicNumberEmployees"),
-      uiOutput("numberEmployeeError")
-    ),
-    uiOutput("dynamicWageQuestion"),
-    numericInput(
-      "careerInterruptions",
-      "7. Approximately, how many career interruptions have you experienced?",
-      value = 0,
-      min = 0,
-      width = "100%"
-    ),
-    conditionalPanel(
-      condition = "input.careerInterruptions > 0",
-      numericInput(
-        "childrenInterruptions",
-        "7.1 How many of the total interruptions were to take care of children or other relatives?",
-        value = 0,
-        min = 0,
-        width = "100%"
-      ),
-      numericInput(
-        "unemploymentInterruptions",
-        "7.2 How many of the total interruptions were due to unemployment?",
-        value = 0,
-        min = 0,
-        width = "100%"
-      ),
-      uiOutput("interruptionError")
-    )
-  ),
-  radioButtons(
-    "propertySavingsYesNo",
-    "8. Do you have any property or savings?",
-    choices = c("Yes", "No"),
-    selected = character(0),
-    width = "100%"
-  ),
-  conditionalPanel(
-    condition = "input.propertySavingsYesNo == 'Yes'",
-    checkboxGroupInput(
-      "detailedPropertySavings",
-      "8.1 If yes, which ones?",
-      choices = list(
-        "I own the house where I live",
-        "I own additional property",
-        "I have savings from my own income",
-        "I have savings from inheritances or donations"
-      ),
-      width = "100%"
-    )
-  ),
-  radioMatrixInput(
-    "share_input",
-    rowIDsName = "9. Which of these fits best your current situation?",
-    rowIDs = row_ids_matrix,
-    rowLLabels = c("", "", ""),
-    choices = col_ids_matrix,
-    labelsWidth = list("1px", "15px")
-  ),
-  selectInput(
-    "motherEducation",
-    "10. Highest education of your mother:",
-    c(
-      "Choose Education" = "",
-      "Not applicable",
-      "Early childhood education",
-      "Primary education",
-      "Lower secondary education",
-      "Upper secondary education",
-      "Post-secondary non-tertiary education",
-      "Short-cycle tertiary education",
-      "Bachelor’s or equivalent level",
-      "Master’s or equivalent level",
-      "Doctoral or equivalent level"
-    ),
-    width = "100%"
-  ),
-  uiOutput("motherOccupationInput"),
-  selectInput(
-    "fatherEducation",
-    "10. Highest education of your father:",
-    c(
-      "Choose Education" = "",
-      "Not applicable",
-      "Early childhood education",
-      "Primary education",
-      "Lower secondary education",
-      "Upper secondary education",
-      "Post-secondary non-tertiary education",
-      "Short-cycle tertiary education",
-      "Bachelor’s or equivalent level",
-      "Master’s or equivalent level",
-      "Doctoral or equivalent level"
-    ),
-    width = "100%"
-  ),
-  uiOutput("fatherOccupationInput"),
-  numericInput(
-    "age",
-    "11. How old are you?",
-    value = NA,
-    min = 0,
-    max = 120,
-    width = "100%"
-  ),
-  radioButtons(
-    "gender",
-    "12. What is your gender?",
-    c("Female", "Male", "Other"),
-    selected = character(0),
-    width = "100%"
-  ),
-  selectInput(
-    "countryBirth",
-    "13. In which country were you born?",
-    c("Choose country" = "", contactdata::list_countries()),
-    selectize = TRUE,
-    width = "100%"
-  ),
-  selectInput(
-    "countryResidence",
-    "14. In which country do you currently live?",
-    c("Choose country" = "", contactdata::list_countries()),
-    selectize = TRUE,
-    width = "100%"
-  ),
-  br(),
-  actionButton("submit_button", "Submit")
-)
-
-server <- function(input, output) {
-  isco08 <- unique(gsub("\\'", "", DIGCLASS::all_labels$isco08[[2]]))
-
-  output$dynamicOccupationQuestion <- renderUI({
-    req(input$working)
-    if (input$working == "Yes") {
-      selectInput(
-        "occupation",
-        "4. What is your current occupation?",
-        choices = c("Write down your occupation" = "", isco08),
-        selectize = TRUE,
-        width = "100%"
-      )
-    } else if (input$workedBefore == "Yes") {
-      selectInput(
-        "occupation",
-        "4. What was your last occupation?",
-        choices = c("Write down your occupation" = "", isco08),
-        selectize = TRUE,
-        width = "100%"
-      )
-    }
-  })
-
-  output$dynamicEmploymentTypeQuestion <- renderUI({
-    req(input$working)
-    if (input$working == "Yes") {
-      selectInput(
-        "employmentType",
-        "5. Do you work on your own or for a company (current job)?",
-        c(
-          "Employment Type" = "",
-          "I am self-employed and I don’t have any employees",
-          "I am self-employed and I have employees",
-          "I am an employee, but I also do some activities on my own",
-          "I am an employee"
-        ),
-        width = "100%"
-      )
-    } else if (input$workedBefore == "Yes") {
-      selectInput("employmentType", "5. Did you work on your own or for a company (last job)?",
-        c(
-          "Employment Type" = "",
-          "I was self-employed and I didn’t have any employees",
-          "I was self-employed and I had employees",
-          "I was an employee, but I also did some activities on my own",
-          "I was an employee"
-        ),
-        width = "100%"
-      )
-    }
-  })
-
-  output$dynamicNumberEmployees <- renderUI({
-    req(input$employmentType)
-    if (input$employmentType == "I am self-employed and I have employees") {
-      numericInput(
-        "numEmployees",
-        "5.1 How many employees do you have (current job)?",
-        value = 1,
-        min = 1,
-        width = "100%"
-      )
-    } else if (input$employmentType == "I was self-employed and I had employees") {
-      numericInput(
-        "numEmployees",
-        "5.1 How many employees did you have (last job)?",
-        value = 1,
-        min = 1,
-        width = "100%"
-      )
-    }
-  })
-
-  output$dynamicWageQuestion <- renderUI({
-    req(input$working)
-    req(input$workedBefore)
-
-    # New question for comfort in sharing exact income
-    comfortableWithExactIncome <- radioButtons(
-      "comfortableIncome",
-      "Would you feel comfortable sharing your exact monthly income?",
+      "propertySavingsYesNo",
+      "8. Do you have any property or savings?",
       choices = c("Yes", "No"),
       selected = character(0),
       width = "100%"
-    )
-
-    if (input$working == "Yes") {
-      income_title <- "6. What is your monthly wage net of taxes in euros (current job)?"
-    } else {
-      income_title <- "6. What was your monthly wage net of taxes in euros (last job)?"
-    }
-
-    income_brackets <- c(
-      "Less than €1,000",
-      "€1,000 to €1,999",
-      "€2,000 to €2,999",
-      "€3,000 to €3,999",
-      "€4,000 to €4,999",
-      "€5,000 to €5,999",
-      "€6,000 to €6,999",
-      "€7,000 to €7,999",
-      "€8,000 to €8,999",
-      "€9,000 to €9,999",
-      "€10,000 and above"
-    )
-
-    # Define income brackets
-    incomeBrackets <- selectInput(
-      "incomeBrackets",
-      income_title,
-      choices = income_brackets,
-      selected = "Less than €1,000",
-      width = "100%"
-    )
-
-    if (input$working == "Yes" || input$workedBefore == "Yes") {
-      fluidRow(
-        column(12, comfortableWithExactIncome),
-        conditionalPanel(
-          condition = "input.comfortableIncome == 'Yes'",
-          column(
-            12,
-            textInput(
-              "monthlyWage",
-              income_title,
-              placeholder = "€1,500",
-              width = "100%"
-            )
-          )
+    ),
+    conditionalPanel(
+      condition = "input.propertySavingsYesNo == 'Yes'",
+      checkboxGroupInput(
+        "detailedPropertySavings",
+        "8.1 If yes, which ones?",
+        choices = list(
+          "I own the house where I live",
+          "I own additional property",
+          "I have savings from my own income",
+          "I have savings from inheritances or donations"
         ),
-        conditionalPanel(
-          condition = "input.comfortableIncome == 'No'",
-          column(12, incomeBrackets)
-        )
-      )
-    }
-  })
-
-  output$motherOccupationInput <- renderUI({
-    if (!is.null(input$motherEducation) && input$motherEducation != "" &&
-      input$motherEducation != "Not applicable") {
-      selectInput(
-        "motherOccupation",
-        "10. Mother's occupation when you were 15:",
-        choices = c("Write down occupation" = "", isco08),
-        selectize = TRUE,
         width = "100%"
       )
-    } else {
-      div()
-    }
-  })
-
-  output$fatherOccupationInput <- renderUI({
-    if (!is.null(input$fatherEducation) && input$fatherEducation != "" &&
-      input$fatherEducation != "Not applicable") {
-      selectInput(
-        "fatherOccupation",
-        "10. Father's occupation when you were 15:",
-        choices = c("Write down occupation" = "", isco08),
-        selectize = TRUE,
-        width = "100%"
-      )
-    } else {
-      div()
-    }
-  })
-
-
-
-
-  observe({
-    totalInterruptions <- input$careerInterruptions
-    sumInterruptions <- input$childrenInterruptions + input$unemploymentInterruptions
-
-    if (totalInterruptions > 0 && totalInterruptions != sumInterruptions) {
-      errorMessage <- "The sum of interruptions for children and unemployment does not match the total reported."
-      styledMessage <- paste0('<span style="color: red; font-weight: bold;">', errorMessage, "</span>")
-    } else {
-      styledMessage <- ""
-    }
-
-    output$interruptionError <- renderUI({
-      HTML(styledMessage)
-    })
-  })
-
-  observe({
-    req(input$numEmployees)
-    if (input$numEmployees < 1) {
-      errorMessage <- "You need to specify 1 or more employees"
-      styledMessage <- paste0('<span style="color: red; font-weight: bold;">', errorMessage, "</span>")
-    } else {
-      styledMessage <- ""
-    }
-
-    output$numberEmployeeError <- renderUI({
-      HTML(styledMessage)
-    })
-  })
-
-  observeEvent(input$submit_button, {
-    # Initialize shinyvalidate
-    iv <- InputValidator$new()
-
-    # Add validation rules
-    iv$add_rule("education", sv_required("This field is required"))
-    iv$add_rule("working", sv_required("This field is required"))
-
-    # Conditional validation for dynamic inputs
-    working <- ifelse(is.null(input$working), "", input$working)
-    workedBefore <- ifelse(is.null(input$workedBefore), "", input$workedBefore)
-    employmentType <- ifelse(is.null(input$employmentType), "", input$employmentType)
-    motherEducation <- ifelse(is.null(input$motherEducation), "", input$motherEducation)
-    fatherEducation <- ifelse(is.null(input$fatherEducation), "", input$fatherEducation)
-    comfortableIncome <- ifelse(is.null(input$comfortableIncome), "", input$comfortableIncome)
-    propertySavingsYesNo <- ifelse(is.null(input$propertySavingsYesNo), "", input$propertySavingsYesNo)
-
-    if (working != "Yes" & working != "") {
-      iv$add_rule("workedBefore", sv_required("This field is required"))
-    }
-
-    if (working == "Yes" | workedBefore == "Yes") {
-      iv$add_rule("occupation", sv_required("This field is required"))
-      iv$add_rule("employmentType", sv_required("This field is required"))
-      iv$add_rule("comfortableIncome", sv_required("This field is required"))
-
-      if (comfortableIncome == "Yes") {
-        iv$add_rule("monthlyWage", sv_required("This field is required"))
-      } else {
-        iv$add_rule("incomeBrackets", sv_required("This field is required"))
-      }
-
-      iv$add_rule("careerInterruptions", sv_required("This field is required"))
-
-      if (employmentType == "I am self-employed and I have employees" | employmentType == "I was self-employed and I had employees") {
-        iv$add_rule("numEmployees", sv_required("This field is required"))
-      }
-    }
-
-    if (!motherEducation %in% c("", "Not applicable")) {
-      iv$add_rule("motherOccupation", sv_required("This field is required"))
-    }
-
-    if (!fatherEducation %in% c("", "Not applicable")) {
-      iv$add_rule("fatherOccupation", sv_required("This field is required"))
-    }
-
-    if (input$careerInterruptions > 0) {
-      iv$add_rule("unemploymentInterruptions", sv_required("This field is required"))
-      iv$add_rule("childrenInterruptions", sv_required("This field is required"))
-    }
-
-    if (propertySavingsYesNo == "Yes") {
-      iv$add_rule("detailedPropertySavings", sv_required("This field is required"))
-    }
-
-    check_radio <- function(x) {
-      is_error <- try(as.data.frame(x), silent = TRUE)
-      if (inherits(is_error, "try-error")) {
-        return(FALSE)
-      } else if (nrow(as.data.frame(x)) != 1) {
-        return(FALSE)
-      } else {
-        return(TRUE)
-      }
-    }
-
-    iv$add_rule("propertySavingsYesNo", sv_required("This field is required"))
-    iv$add_rule("age", sv_required("This field is required"))
-    iv$add_rule("gender", sv_required("This field is required"))
-    iv$add_rule("countryBirth", sv_required("This field is required"))
-    iv$add_rule("countryResidence", sv_required("This field is required"))
-    iv$add_rule("share_input", sv_required("This field is required", test = check_radio))
-    iv$add_rule("fatherEducation", sv_required("This field is required"))
-    iv$add_rule("motherEducation", sv_required("This field is required"))
-    iv$enable()
-
-    cols_multiple_check_df <- sapply(row_ids_matrix, function(q) {
-      sapply(col_ids_matrix, function(r) {
-        gsub("[:/() ]", "", paste(tolower(gsub(" ", "_", q)), tolower(gsub(" ", "_", r)), sep = "_"))
-      })
-    }, simplify = "vector")
-
-    multiple_check_df <- setNames(
-      data.frame(
-        matrix(0, nrow = 1, ncol = length(cols_multiple_check_df))
+    ),
+    radioMatrixInput(
+      "share_input",
+      rowIDsName = "9. Which of these fits best your current situation?",
+      rowIDs = row_ids_matrix,
+      rowLLabels = c("", "", ""),
+      choices = col_ids_matrix,
+      labelsWidth = list("1px", "15px")
+    ),
+    selectInput(
+      "motherEducation",
+      "10. Highest education of your mother:",
+      c(
+        "Choose Education" = "",
+        "Not applicable",
+        "Early childhood education",
+        "Primary education",
+        "Lower secondary education",
+        "Upper secondary education",
+        "Post-secondary non-tertiary education",
+        "Short-cycle tertiary education",
+        "Bachelor’s or equivalent level",
+        "Master’s or equivalent level",
+        "Doctoral or equivalent level"
       ),
-      cols_multiple_check_df
-    )
+      width = "100%"
+    ),
+    uiOutput("motherOccupationInput"),
+    selectInput(
+      "fatherEducation",
+      "10. Highest education of your father:",
+      c(
+        "Choose Education" = "",
+        "Not applicable",
+        "Early childhood education",
+        "Primary education",
+        "Lower secondary education",
+        "Upper secondary education",
+        "Post-secondary non-tertiary education",
+        "Short-cycle tertiary education",
+        "Bachelor’s or equivalent level",
+        "Master’s or equivalent level",
+        "Doctoral or equivalent level"
+      ),
+      width = "100%"
+    ),
+    uiOutput("fatherOccupationInput"),
+    numericInput(
+      "age",
+      "11. How old are you?",
+      value = NA,
+      min = 0,
+      max = 120,
+      width = "100%"
+    ),
+    radioButtons(
+      "gender",
+      "12. What is your gender?",
+      c("Female", "Male", "Other"),
+      selected = character(0),
+      width = "100%"
+    ),
+    selectInput(
+      "countryBirth",
+      "13. In which country were you born?",
+      c("Choose country" = "", contactdata::list_countries()),
+      selectize = TRUE,
+      width = "100%"
+    ),
+    selectInput(
+      "countryResidence",
+      "14. In which country do you currently live?",
+      c("Choose country" = "", contactdata::list_countries()),
+      selectize = TRUE,
+      width = "100%"
+    ),
+    br(),
+    actionButton("submit_button", "Submit")
+  )
+)
+
+server <- function(input, output) {
+  observeEvent(input$start_survey, {
+    isco08 <- unique(gsub("\\'", "", DIGCLASS::all_labels$isco08[[2]]))
+
+    output$dynamicOccupationQuestion <- renderUI({
+      req(input$working)
+      if (input$working == "Yes") {
+        selectInput(
+          "occupation",
+          "4. What is your current occupation?",
+          choices = c("Write down your occupation" = "", isco08),
+          selectize = TRUE,
+          width = "100%"
+        )
+      } else if (input$workedBefore == "Yes") {
+        selectInput(
+          "occupation",
+          "4. What was your last occupation?",
+          choices = c("Write down your occupation" = "", isco08),
+          selectize = TRUE,
+          width = "100%"
+        )
+      }
+    })
+
+    output$dynamicEmploymentTypeQuestion <- renderUI({
+      req(input$working)
+      if (input$working == "Yes") {
+        selectInput(
+          "employmentType",
+          "5. Do you work on your own or for a company (current job)?",
+          c(
+            "Employment Type" = "",
+            "I am self-employed and I don’t have any employees",
+            "I am self-employed and I have employees",
+            "I am an employee, but I also do some activities on my own",
+            "I am an employee"
+          ),
+          width = "100%"
+        )
+      } else if (input$workedBefore == "Yes") {
+        selectInput("employmentType", "5. Did you work on your own or for a company (last job)?",
+          c(
+            "Employment Type" = "",
+            "I was self-employed and I didn’t have any employees",
+            "I was self-employed and I had employees",
+            "I was an employee, but I also did some activities on my own",
+            "I was an employee"
+          ),
+          width = "100%"
+        )
+      }
+    })
+
+    output$dynamicNumberEmployees <- renderUI({
+      req(input$employmentType)
+      if (input$employmentType == "I am self-employed and I have employees") {
+        numericInput(
+          "numEmployees",
+          "5.1 How many employees do you have (current job)?",
+          value = 1,
+          min = 1,
+          width = "100%"
+        )
+      } else if (input$employmentType == "I was self-employed and I had employees") {
+        numericInput(
+          "numEmployees",
+          "5.1 How many employees did you have (last job)?",
+          value = 1,
+          min = 1,
+          width = "100%"
+        )
+      }
+    })
+
+    output$dynamicWageQuestion <- renderUI({
+      req(input$working)
+      req(input$workedBefore)
+
+      # New question for comfort in sharing exact income
+      comfortableWithExactIncome <- radioButtons(
+        "comfortableIncome",
+        "Would you feel comfortable sharing your exact monthly income?",
+        choices = c("Yes", "No"),
+        selected = character(0),
+        width = "100%"
+      )
+
+      if (input$working == "Yes") {
+        income_title <- "6. What is your monthly wage net of taxes in euros (current job)?"
+      } else {
+        income_title <- "6. What was your monthly wage net of taxes in euros (last job)?"
+      }
+
+      income_brackets <- c(
+        "Less than €1,000",
+        "€1,000 to €1,999",
+        "€2,000 to €2,999",
+        "€3,000 to €3,999",
+        "€4,000 to €4,999",
+        "€5,000 to €5,999",
+        "€6,000 to €6,999",
+        "€7,000 to €7,999",
+        "€8,000 to €8,999",
+        "€9,000 to €9,999",
+        "€10,000 and above"
+      )
+
+      # Define income brackets
+      incomeBrackets <- selectInput(
+        "incomeBrackets",
+        income_title,
+        choices = income_brackets,
+        selected = "Less than €1,000",
+        width = "100%"
+      )
+
+      if (input$working == "Yes" || input$workedBefore == "Yes") {
+        fluidRow(
+          column(12, comfortableWithExactIncome),
+          conditionalPanel(
+            condition = "input.comfortableIncome == 'Yes'",
+            column(
+              12,
+              textInput(
+                "monthlyWage",
+                income_title,
+                placeholder = "€1,500",
+                width = "100%"
+              )
+            )
+          ),
+          conditionalPanel(
+            condition = "input.comfortableIncome == 'No'",
+            column(12, incomeBrackets)
+          )
+        )
+      }
+    })
+
+    output$motherOccupationInput <- renderUI({
+      if (!is.null(input$motherEducation) && input$motherEducation != "" &&
+        input$motherEducation != "Not applicable") {
+        selectInput(
+          "motherOccupation",
+          "10. Mother's occupation when you were 15:",
+          choices = c("Write down occupation" = "", isco08),
+          selectize = TRUE,
+          width = "100%"
+        )
+      } else {
+        div()
+      }
+    })
+
+    output$fatherOccupationInput <- renderUI({
+      if (!is.null(input$fatherEducation) && input$fatherEducation != "" &&
+        input$fatherEducation != "Not applicable") {
+        selectInput(
+          "fatherOccupation",
+          "10. Father's occupation when you were 15:",
+          choices = c("Write down occupation" = "", isco08),
+          selectize = TRUE,
+          width = "100%"
+        )
+      } else {
+        div()
+      }
+    })
 
 
-    # Populate the data frame
-    for (question in names(input$share_input)) {
-      for (response in unlist(input$share_input[[question]])) {
 
-        col_name <- gsub("[:/() ]", "", paste(tolower(gsub(" ", "_", question)), tolower(gsub(" ", "_", response)), sep = "_"))
 
-        if (col_name %in% names(multiple_check_df)) {
-          multiple_check_df[1, col_name] <- 1
+    observe({
+      totalInterruptions <- input$careerInterruptions
+      sumInterruptions <- input$childrenInterruptions + input$unemploymentInterruptions
+
+      if (totalInterruptions > 0 && totalInterruptions != sumInterruptions) {
+        errorMessage <- "The sum of interruptions for children and unemployment does not match the total reported."
+        styledMessage <- paste0('<span style="color: red; font-weight: bold;">', errorMessage, "</span>")
+      } else {
+        styledMessage <- ""
+      }
+
+      output$interruptionError <- renderUI({
+        HTML(styledMessage)
+      })
+    })
+
+    observe({
+      req(input$numEmployees)
+      if (input$numEmployees < 1) {
+        errorMessage <- "You need to specify 1 or more employees"
+        styledMessage <- paste0('<span style="color: red; font-weight: bold;">', errorMessage, "</span>")
+      } else {
+        styledMessage <- ""
+      }
+
+      output$numberEmployeeError <- renderUI({
+        HTML(styledMessage)
+      })
+    })
+
+    observeEvent(input$submit_button, {
+      # Initialize shinyvalidate
+      iv <- InputValidator$new()
+
+      # Add validation rules
+      iv$add_rule("education", sv_required("This field is required"))
+      iv$add_rule("working", sv_required("This field is required"))
+
+      # Conditional validation for dynamic inputs
+      working <- ifelse(is.null(input$working), "", input$working)
+      workedBefore <- ifelse(is.null(input$workedBefore), "", input$workedBefore)
+      employmentType <- ifelse(is.null(input$employmentType), "", input$employmentType)
+      motherEducation <- ifelse(is.null(input$motherEducation), "", input$motherEducation)
+      fatherEducation <- ifelse(is.null(input$fatherEducation), "", input$fatherEducation)
+      comfortableIncome <- ifelse(is.null(input$comfortableIncome), "", input$comfortableIncome)
+      propertySavingsYesNo <- ifelse(is.null(input$propertySavingsYesNo), "", input$propertySavingsYesNo)
+
+      if (working != "Yes" & working != "") {
+        iv$add_rule("workedBefore", sv_required("This field is required"))
+      }
+
+      if (working == "Yes" | workedBefore == "Yes") {
+        iv$add_rule("occupation", sv_required("This field is required"))
+        iv$add_rule("employmentType", sv_required("This field is required"))
+        iv$add_rule("comfortableIncome", sv_required("This field is required"))
+
+        if (comfortableIncome == "Yes") {
+          iv$add_rule("monthlyWage", sv_required("This field is required"))
+        } else {
+          iv$add_rule("incomeBrackets", sv_required("This field is required"))
+        }
+
+        iv$add_rule("careerInterruptions", sv_required("This field is required"))
+
+        if (employmentType == "I am self-employed and I have employees" | employmentType == "I was self-employed and I had employees") {
+          iv$add_rule("numEmployees", sv_required("This field is required"))
         }
       }
-    }
 
-    handleNA <- function(inputField) {
-      ifelse(length(inputField) == 0, NA, inputField)
-    }
+      if (!motherEducation %in% c("", "Not applicable")) {
+        iv$add_rule("motherOccupation", sv_required("This field is required"))
+      }
 
-    if (iv$is_valid()) {
-      responsesDF <- reactive({
-        res <- data.frame(
-          Education = handleNA(input$education),
-          Working = handleNA(input$working),
-          WorkedBefore = handleNA(input$workedBefore),
-          Occupation = handleNA(input$occupation),
-          EmploymentType = handleNA(input$employmentType),
-          NumberOfEmployees = handleNA(input$numEmployees),
-          Currency = handleNA(input$currency),
-          ComfortableIncome = handleNA(input$comfortableIncome),
-          MonthlyWage = handleNA(input$monthlyWage),
-          IncomeBrackets = handleNA(input$incomeBrackets),
-          CareerInterruptions = handleNA(input$careerInterruptions),
-          ChildrenInterruptions = handleNA(input$childrenInterruptions),
-          UnemploymentInterruptions = handleNA(input$unemploymentInterruptions),
-          PropertySavingsYesNo = handleNA(paste(input$propertySavingsYesNo, collapse = ", ")),
-          detailedPropertySavings = handleNA(paste(input$detailedPropertySavings, collapse = ", ")),
-          multiple_check_df,
-          motherEducation = handleNA(input$motherEducation),
-          fatherEducation = handleNA(input$fatherEducation),
-          motherOccupation = handleNA(input$motherOccupation),
-          fatherOccupation = handleNA(input$fatherOccupation),
-          Age = handleNA(input$age),
-          Gender = handleNA(input$gender),
-          CountryOfBirth = handleNA(input$countryBirth),
-          CountryOfResidence = handleNA(input$countryResidence),
-          stringsAsFactors = FALSE
-        )
+      if (!fatherEducation %in% c("", "Not applicable")) {
+        iv$add_rule("fatherOccupation", sv_required("This field is required"))
+      }
 
-        names(res) <- gsub(":|\\\\", "", tolower(names(res)))
-        res
-      })
+      if (input$careerInterruptions > 0) {
+        iv$add_rule("unemploymentInterruptions", sv_required("This field is required"))
+        iv$add_rule("childrenInterruptions", sv_required("This field is required"))
+      }
 
-      gs4_auth(path = "./service-account.json")
+      if (propertySavingsYesNo == "Yes") {
+        iv$add_rule("detailedPropertySavings", sv_required("This field is required"))
+      }
 
-      sheet_append(
-        "https://docs.google.com/spreadsheets/d/1JyvLgsdpJ2WruGIAPqBWFMXxskeF38wjEPs77P4MDoo/edit#gid=0",
-        responsesDF()
+      check_radio <- function(x) {
+        is_error <- try(as.data.frame(x), silent = TRUE)
+        if (inherits(is_error, "try-error")) {
+          return(FALSE)
+        } else if (nrow(as.data.frame(x)) != 1) {
+          return(FALSE)
+        } else {
+          return(TRUE)
+        }
+      }
+
+      iv$add_rule("propertySavingsYesNo", sv_required("This field is required"))
+      iv$add_rule("age", sv_required("This field is required"))
+      iv$add_rule("gender", sv_required("This field is required"))
+      iv$add_rule("countryBirth", sv_required("This field is required"))
+      iv$add_rule("countryResidence", sv_required("This field is required"))
+      iv$add_rule("share_input", sv_required("This field is required", test = check_radio))
+      iv$add_rule("fatherEducation", sv_required("This field is required"))
+      iv$add_rule("motherEducation", sv_required("This field is required"))
+      iv$enable()
+
+      cols_multiple_check_df <- sapply(row_ids_matrix, function(q) {
+        sapply(col_ids_matrix, function(r) {
+          gsub("[:/() ]", "", paste(tolower(gsub(" ", "_", q)), tolower(gsub(" ", "_", r)), sep = "_"))
+        })
+      }, simplify = "vector")
+
+      multiple_check_df <- setNames(
+        data.frame(
+          matrix(0, nrow = 1, ncol = length(cols_multiple_check_df))
+        ),
+        cols_multiple_check_df
       )
 
-      # Show a modal dialog after submission
-      showModal(
-        modalDialog(
-          title = "Thank you!",
-          "Your response has been submitted successfully! 😊",
-          easyClose = TRUE,
-          footer = NULL
+
+      # Populate the data frame
+      for (question in names(input$share_input)) {
+        for (response in unlist(input$share_input[[question]])) {
+          col_name <- gsub("[:/() ]", "", paste(tolower(gsub(" ", "_", question)), tolower(gsub(" ", "_", response)), sep = "_"))
+
+          if (col_name %in% names(multiple_check_df)) {
+            multiple_check_df[1, col_name] <- 1
+          }
+        }
+      }
+
+      handleNA <- function(inputField) {
+        ifelse(length(inputField) == 0, NA, inputField)
+      }
+
+      if (iv$is_valid()) {
+        responsesDF <- reactive({
+          res <- data.frame(
+            Education = handleNA(input$education),
+            Working = handleNA(input$working),
+            WorkedBefore = handleNA(input$workedBefore),
+            Occupation = handleNA(input$occupation),
+            EmploymentType = handleNA(input$employmentType),
+            NumberOfEmployees = handleNA(input$numEmployees),
+            Currency = handleNA(input$currency),
+            ComfortableIncome = handleNA(input$comfortableIncome),
+            MonthlyWage = handleNA(input$monthlyWage),
+            IncomeBrackets = handleNA(input$incomeBrackets),
+            CareerInterruptions = handleNA(input$careerInterruptions),
+            ChildrenInterruptions = handleNA(input$childrenInterruptions),
+            UnemploymentInterruptions = handleNA(input$unemploymentInterruptions),
+            PropertySavingsYesNo = handleNA(paste(input$propertySavingsYesNo, collapse = ", ")),
+            detailedPropertySavings = handleNA(paste(input$detailedPropertySavings, collapse = ", ")),
+            multiple_check_df,
+            motherEducation = handleNA(input$motherEducation),
+            fatherEducation = handleNA(input$fatherEducation),
+            motherOccupation = handleNA(input$motherOccupation),
+            fatherOccupation = handleNA(input$fatherOccupation),
+            Age = handleNA(input$age),
+            Gender = handleNA(input$gender),
+            CountryOfBirth = handleNA(input$countryBirth),
+            CountryOfResidence = handleNA(input$countryResidence),
+            stringsAsFactors = FALSE
+          )
+
+          names(res) <- gsub(":|\\\\", "", tolower(names(res)))
+          res
+        })
+
+        gs4_auth(path = "./service-account.json")
+
+        sheet_append(
+          "https://docs.google.com/spreadsheets/d/1JyvLgsdpJ2WruGIAPqBWFMXxskeF38wjEPs77P4MDoo/edit#gid=0",
+          responsesDF()
         )
-      )
-    }
+
+        # Show a modal dialog after submission
+        showModal(
+          modalDialog(
+            title = "Thank you!",
+            "Your response has been submitted successfully! 😊",
+            easyClose = TRUE,
+            footer = NULL
+          )
+        )
+      }
+    })
   })
 }
 
