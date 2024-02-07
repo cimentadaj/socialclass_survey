@@ -71,6 +71,8 @@ ui <- fluidEuTheme(
   hidden(
     div(
       id = "first_page",
+      em(p("Page 1/3")),
+      br(),
       selectInput(
         "education",
         "1. What is the highest level of education that you have completed?",
@@ -155,6 +157,8 @@ ui <- fluidEuTheme(
   hidden(
     div(
       id = "second_page",
+      em(p("Page 2/3")),
+      br(),
       radioButtons(
         "propertySavingsYesNo",
         "8. Do you have any property or savings?",
@@ -191,6 +195,8 @@ ui <- fluidEuTheme(
   hidden(
     div(
       id = "third_page",
+      em(p("Page 3/3")),
+      br(),
       selectInput(
         "motherEducation",
         "10. Highest education of your mother:",
@@ -435,6 +441,10 @@ server <- function(input, output) {
     })
 
     observe({
+      req(input$careerInterruptions)
+      req(input$childrenInterruptions)
+      req(input$unemploymentInterruptions)
+
       totalInterruptions <- input$careerInterruptions
       sumInterruptions <- input$childrenInterruptions + input$unemploymentInterruptions
 
@@ -509,6 +519,10 @@ server <- function(input, output) {
     }
 
     iv_two$enable()
+
+    req(input$careerInterruptions)
+    req(input$childrenInterruptions)
+    req(input$unemploymentInterruptions)
 
     totalInterruptions <- input$careerInterruptions
     sumInterruptions <- input$childrenInterruptions + input$unemploymentInterruptions
