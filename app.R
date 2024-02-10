@@ -2,11 +2,23 @@ library(shiny)
 library(eutheme)
 library(googlesheets4)
 library(shinyvalidate)
+library(shinyWidgets)
 library(shinyRadioMatrix)
 library(rbcb)
 library(DIGCLASS)
 library(contactdata)
 library(shinyjs)
+
+funFact <- function(image, text) {
+  div(
+    div(class = "catchy-title", "Mind-Blowing Facts"),
+    div(
+      class = "fact-container",
+      img(src = image, class = "fact-image"),
+      div(class = "fact-text", text)
+    ),
+  )
+}
 
 generateMultipleCheckDataFrame <- function(row_ids_matrix, col_ids_matrix, input_data) {
   # Generate column names
@@ -36,6 +48,27 @@ generateMultipleCheckDataFrame <- function(row_ids_matrix, col_ids_matrix, input
   return(multiple_check_df)
 }
 
+fancyRadioButtons <- function(inputId, label, choices, selected, width = "100%") {
+  radioGroupButtons(
+    inputId = inputId,
+    label = label,
+    choices = choices,
+    selected = selected,
+    individual = TRUE,
+    checkIcon = list(
+      yes = tags$i(
+        class = "fa fa-circle",
+        style = "color: steelblue"
+      ),
+      no = tags$i(
+        class = "fa fa-circle-o",
+        style = "color: steelblue"
+      )
+    ),
+    width = width
+  )
+}
+
 
 row_ids_matrix <- c("You live with:", "You regularly share/pool resources with:", "You sometimes receive income from:")
 
@@ -45,9 +78,37 @@ ui <- fluidEuTheme(
   tags$head(
     tags$style(
       HTML(
-        "        #div_id .selectize-control.single .selectize-input:after{
+        "#div_id .selectize-control.single .selectize-input:after{
           content: none;
-        }"
+        }
+
+      .fact-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .fact-text {
+        font-size: 16px;
+        color: #333;
+        margin-left: 20px;
+      }
+      .fact-image {
+        width: 100px; /* Adjust the image size as needed */
+        height: auto;
+      }
+
+      .catchy-title {
+        font-size: 24px; /* Large font size for emphasis */
+        color: #D35400; /* Vibrant orange color for attention */
+        background-color: #FDE3A7; /* Soft background to make the text pop */
+        text-align: center; /* Center the title for prominence */
+        padding: 10px; /* Add some padding around the text */
+        border-radius: 8px; /* Rounded corners for a modern look */
+        margin-top: 20px; /* Space at the top for breathing room */
+        margin-bottom: 20px; /* Space below to separate from content */
+        font-family: 'Arial', sans-serif; /* Modern, readable font */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+      }"
       )
     )
   ),
@@ -80,7 +141,11 @@ ui <- fluidEuTheme(
   hidden(
     div(
       id = "first_page",
-      em(p("Page 1/3")),
+      funFact(
+        image = "custom_css/images/test.gif",
+        text = "Did you know that in Denmark over 80% of low-income kids climb to a higher income bracket, showcasing high social mobility?"
+      ),
+      hr(),
       br(),
       selectInput(
         "education",
@@ -116,7 +181,7 @@ ui <- fluidEuTheme(
       ),
       conditionalPanel(
         condition = "input.working != 'Yes' & input.working != ''",
-        radioButtons(
+        fancyRadioButtons(
           "workedBefore",
           "Have you worked before?",
           c("Yes", "No"),
@@ -160,15 +225,19 @@ ui <- fluidEuTheme(
           uiOutput("interruptionError")
         )
       ),
-      actionButton("go_second_page", "Next Page")
+      actionButton("go_second_page", "Next Page", class = "btn-primary")
     )
   ),
   hidden(
     div(
       id = "second_page",
-      em(p("Page 2/3")),
+      funFact(
+        image = "custom_css/images/income.gif",
+        text = "Did you know that only half of the U.S. kids born in the 1980s earn more than their parents, down from 90% in 1940?"
+      ),
+      hr(),
       br(),
-      radioButtons(
+      fancyRadioButtons(
         "propertySavingsYesNo",
         "Do you have any property or savings?",
         choices = c("Yes", "No"),
@@ -198,7 +267,7 @@ ui <- fluidEuTheme(
         labelsWidth = list("1px", "15px")
       ),
       actionButton("back_first_page", "Back"),
-      actionButton("go_third_page", "Next Page")
+      actionButton("go_third_page", "Next Page", class = "btn-primary")
     )
   ),
   hidden(
@@ -252,7 +321,7 @@ ui <- fluidEuTheme(
         max = 120,
         width = "100%"
       ),
-      radioButtons(
+      fancyRadioButtons(
         "gender",
         "What is your gender?",
         c("Female", "Male", "Other", "Prefer not to tell"),
@@ -281,7 +350,7 @@ ui <- fluidEuTheme(
       ),
       br(),
       actionButton("back_second_page", "Back"),
-      actionButton("submit_button", "Submit")
+      actionButton("submit_button", "Submit", class = "btn-primary")
     )
   )
 )
@@ -373,7 +442,7 @@ server <- function(input, output) {
       req(input$working)
 
       # New question for comfort in sharing exact income
-      comfortableWithExactIncome <- radioButtons(
+      comfortableWithExactIncome <- fancyRadioButtons(
         "comfortableIncome",
         "Would you feel comfortable sharing your exact monthly income?",
         choices = c("Yes", "No"),
