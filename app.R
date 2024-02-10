@@ -75,7 +75,7 @@ ui <- fluidEuTheme(
       br(),
       selectInput(
         "education",
-        "1. What is the highest level of education that you have completed?",
+        "What is the highest level of education that you have completed?",
         c(
           "Choose Education" = "",
           "Early childhood education",
@@ -92,7 +92,7 @@ ui <- fluidEuTheme(
       ),
       selectInput(
         "working",
-        "2. Are you currently working?",
+        "Are you currently working?",
         c(
           "Choose Status" = "",
           "Yes",
@@ -109,7 +109,7 @@ ui <- fluidEuTheme(
         condition = "input.working != 'Yes' & input.working != ''",
         radioButtons(
           "workedBefore",
-          "3. Have you worked before?",
+          "Have you worked before?",
           c("Yes", "No"),
           selected = character(0),
           width = "100%"
@@ -127,7 +127,7 @@ ui <- fluidEuTheme(
         uiOutput("dynamicWageQuestion"),
         numericInput(
           "careerInterruptions",
-          "7. Approximately, how many career interruptions have you experienced?",
+          "Approximately, how many career interruptions have you experienced?",
           value = 0,
           min = 0,
           width = "100%"
@@ -136,14 +136,14 @@ ui <- fluidEuTheme(
           condition = "input.careerInterruptions > 0",
           numericInput(
             "childrenInterruptions",
-            "7.1 How many of the total interruptions were to take care of children or other relatives?",
+            "How many of the total interruptions were to take care of children or other relatives?",
             value = 0,
             min = 0,
             width = "100%"
           ),
           numericInput(
             "unemploymentInterruptions",
-            "7.2 How many of the total interruptions were due to unemployment?",
+            "How many of the total interruptions were due to unemployment?",
             value = 0,
             min = 0,
             width = "100%"
@@ -161,7 +161,7 @@ ui <- fluidEuTheme(
       br(),
       radioButtons(
         "propertySavingsYesNo",
-        "8. Do you have any property or savings?",
+        "Do you have any property or savings?",
         choices = c("Yes", "No"),
         selected = character(0),
         width = "100%"
@@ -170,7 +170,7 @@ ui <- fluidEuTheme(
         condition = "input.propertySavingsYesNo == 'Yes'",
         checkboxGroupInput(
           "detailedPropertySavings",
-          "8.1 If yes, which ones?",
+          "If yes, which ones?",
           choices = list(
             "I own the house where I live",
             "I own additional property",
@@ -182,7 +182,7 @@ ui <- fluidEuTheme(
       ),
       radioMatrixInput(
         "share_input",
-        rowIDsName = "9. Which of these fits best your current situation?",
+        rowIDsName = "Which of these fits best your current situation?",
         rowIDs = row_ids_matrix,
         rowLLabels = c("", "", ""),
         choices = col_ids_matrix,
@@ -199,7 +199,7 @@ ui <- fluidEuTheme(
       br(),
       selectInput(
         "motherEducation",
-        "10. Highest education of your mother:",
+        "Highest education of your mother:",
         c(
           "Choose Education" = "",
           "Not applicable",
@@ -218,7 +218,7 @@ ui <- fluidEuTheme(
       uiOutput("motherOccupationInput"),
       selectInput(
         "fatherEducation",
-        "10. Highest education of your father:",
+        "Highest education of your father:",
         c(
           "Choose Education" = "",
           "Not applicable",
@@ -237,7 +237,7 @@ ui <- fluidEuTheme(
       uiOutput("fatherOccupationInput"),
       numericInput(
         "age",
-        "11. How old are you?",
+        "How old are you?",
         value = NA,
         min = 0,
         max = 120,
@@ -245,21 +245,21 @@ ui <- fluidEuTheme(
       ),
       radioButtons(
         "gender",
-        "12. What is your gender?",
+        "What is your gender?",
         c("Female", "Male", "Other"),
         selected = character(0),
         width = "100%"
       ),
       selectInput(
         "countryBirth",
-        "13. In which country were you born?",
+        "In which country were you born?",
         c("Choose country" = "", contactdata::list_countries()),
         selectize = TRUE,
         width = "100%"
       ),
       selectInput(
         "countryResidence",
-        "14. In which country do you currently live?",
+        "In which country do you currently live?",
         c("Choose country" = "", contactdata::list_countries()),
         selectize = TRUE,
         width = "100%"
@@ -280,7 +280,7 @@ server <- function(input, output) {
       if (input$working == "Yes") {
         selectInput(
           "occupation",
-          "4. What is your current occupation?",
+          "What is your current occupation?",
           choices = c("Write down your occupation" = "", isco08),
           selectize = TRUE,
           width = "100%"
@@ -288,7 +288,7 @@ server <- function(input, output) {
       } else if (input$workedBefore == "Yes") {
         selectInput(
           "occupation",
-          "4. What was your last occupation?",
+          "What was your last occupation?",
           choices = c("Write down your occupation" = "", isco08),
           selectize = TRUE,
           width = "100%"
@@ -301,7 +301,7 @@ server <- function(input, output) {
       if (input$working == "Yes") {
         selectInput(
           "employmentType",
-          "5. Do you work on your own or for a company (current job)?",
+          "Do you work on your own or for a company (current job)?",
           c(
             "Employment Type" = "",
             "I am self-employed and I don’t have any employees",
@@ -312,7 +312,9 @@ server <- function(input, output) {
           width = "100%"
         )
       } else if (input$workedBefore == "Yes") {
-        selectInput("employmentType", "5. Did you work on your own or for a company (last job)?",
+        selectInput(
+          "employmentType",
+          "Did you work on your own or for a company (last job)?",
           c(
             "Employment Type" = "",
             "I was self-employed and I didn’t have any employees",
@@ -330,7 +332,7 @@ server <- function(input, output) {
       if (input$employmentType == "I am self-employed and I have employees") {
         numericInput(
           "numEmployees",
-          "5.1 How many employees do you have (current job)?",
+          "How many employees do you have (current job)?",
           value = 1,
           min = 1,
           width = "100%"
@@ -338,7 +340,7 @@ server <- function(input, output) {
       } else if (input$employmentType == "I was self-employed and I had employees") {
         numericInput(
           "numEmployees",
-          "5.1 How many employees did you have (last job)?",
+          "How many employees did you have (last job)?",
           value = 1,
           min = 1,
           width = "100%"
@@ -359,9 +361,9 @@ server <- function(input, output) {
       )
 
       if (input$working == "Yes") {
-        income_title <- "6. What is your monthly wage net of taxes in euros (current job)?"
+        income_title <- "What is your monthly wage net of taxes in euros (current job)?"
       } else {
-        income_title <- "6. What was your monthly wage net of taxes in euros (last job)?"
+        income_title <- "What was your monthly wage net of taxes in euros (last job)?"
       }
 
       income_brackets <- c(
@@ -415,7 +417,7 @@ server <- function(input, output) {
         input$motherEducation != "Not applicable") {
         selectInput(
           "motherOccupation",
-          "10. Mother's occupation when you were 15:",
+          "Mother's occupation when you were 15:",
           choices = c("Write down occupation" = "", isco08),
           selectize = TRUE,
           width = "100%"
@@ -430,7 +432,7 @@ server <- function(input, output) {
         input$fatherEducation != "Not applicable") {
         selectInput(
           "fatherOccupation",
-          "10. Father's occupation when you were 15:",
+          "Father's occupation when you were 15:",
           choices = c("Write down occupation" = "", isco08),
           selectize = TRUE,
           width = "100%"
