@@ -42,6 +42,15 @@ row_ids_matrix <- c("You live with:", "You regularly share/pool resources with:"
 col_ids_matrix <- c("No one", "Partner", "Children under 16", "Child(ren) 16 or older", "Other relatives (fi. parents)")
 
 ui <- fluidEuTheme(
+  tags$head(
+    tags$style(
+      HTML(
+        "        #div_id .selectize-control.single .selectize-input:after{
+          content: none;
+        }"
+      )
+    )
+  ),
   title = "Social Mobility Survey",
   useShinyjs(),
   br(),
@@ -278,20 +287,26 @@ server <- function(input, output) {
     output$dynamicOccupationQuestion <- renderUI({
       req(input$working)
       if (input$working == "Yes") {
-        selectInput(
-          "occupation",
-          "What is your current occupation?",
-          choices = c("Write down your occupation" = "", isco08),
-          selectize = TRUE,
-          width = "100%"
+        tags$div(
+          id = "div_id",
+          selectInput(
+            "occupation",
+            "What was your last occupation?",
+            choices = c("Write down your occupation" = "", isco08),
+            selectize = TRUE,
+            width = "100%"
+          )
         )
       } else if (input$workedBefore == "Yes") {
-        selectInput(
-          "occupation",
-          "What was your last occupation?",
-          choices = c("Write down your occupation" = "", isco08),
-          selectize = TRUE,
-          width = "100%"
+        tags$div(
+          id = "div_id",
+          selectInput(
+            "occupation",
+            "What was your last occupation?",
+            choices = c("Write down your occupation" = "", isco08),
+            selectize = TRUE,
+            width = "100%"
+          )
         )
       }
     })
@@ -415,12 +430,15 @@ server <- function(input, output) {
     output$motherOccupationInput <- renderUI({
       if (!is.null(input$motherEducation) && input$motherEducation != "" &&
         input$motherEducation != "Not applicable") {
-        selectInput(
-          "motherOccupation",
-          "Mother's occupation when you were 15:",
-          choices = c("Write down occupation" = "", isco08),
-          selectize = TRUE,
-          width = "100%"
+        tags$div(
+          id = "div_id",
+          selectInput(
+            "motherOccupation",
+            "Mother's occupation when you were 15:",
+            choices = c("Write down occupation" = "", isco08),
+            selectize = TRUE,
+            width = "100%"
+          )
         )
       } else {
         div()
@@ -430,12 +448,15 @@ server <- function(input, output) {
     output$fatherOccupationInput <- renderUI({
       if (!is.null(input$fatherEducation) && input$fatherEducation != "" &&
         input$fatherEducation != "Not applicable") {
-        selectInput(
-          "fatherOccupation",
-          "Father's occupation when you were 15:",
-          choices = c("Write down occupation" = "", isco08),
-          selectize = TRUE,
-          width = "100%"
+        tags$div(
+          id = "div_id",
+          selectInput(
+            "fatherOccupation",
+            "Father's occupation when you were 15:",
+            choices = c("Write down occupation" = "", isco08),
+            selectize = TRUE,
+            width = "100%"
+          )
         )
       } else {
         div()
