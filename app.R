@@ -567,21 +567,31 @@ server <- function(input, output) {
     propertySavingsYesNo <- ifelse(is.null(input$propertySavingsYesNo), "", input$propertySavingsYesNo)
 
     check_radio <- function(x) {
+      # First check: Ensure no NULL elements and match the length with row_ids_matrix
       null_elements <- Filter(function(x) !is.null(x), x)
-      if (length(null_elements) == length(row_ids_matrix)) {
-        return(TRUE)
-      } else {
-        return(FALSE)
+      if (length(null_elements) != length(row_ids_matrix)) {
+        return("All row options are required")
       }
+
+      # Additional check for the "No one" condition
+      for (list_element in x) {
+        tmp_el <- unlist(list_element)
+        # Check if "No one" is in the list and it's not the only element
+        if ("No one" %in% tmp_el && length(tmp_el) > 1) {
+          return("You cannot specify 'No one' with other options")
+        }
+      }
+
+      # If all checks passed
+      NULL
     }
 
     iv_three$add_rule("propertySavingsYesNo", sv_required("This field is required"))
-    iv_three$add_rule("share_input", sv_required("This field is required", test = check_radio))
+    iv_three$add_rule("share_input", check_radio)
 
     if (propertySavingsYesNo == "Yes") {
       iv_three$add_rule("detailedPropertySavings", sv_required("This field is required"))
     }
-
     iv_three$enable()
 
     if (iv_three$is_valid()) {
