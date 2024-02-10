@@ -255,7 +255,7 @@ ui <- fluidEuTheme(
       radioButtons(
         "gender",
         "What is your gender?",
-        c("Female", "Male", "Other"),
+        c("Female", "Male", "Other", "Prefer not to tell"),
         selected = character(0),
         width = "100%"
       ),
@@ -271,6 +271,12 @@ ui <- fluidEuTheme(
         "In which country do you currently live?",
         c("Choose country" = "", contactdata::list_countries()),
         selectize = TRUE,
+        width = "100%"
+      ),
+      selectInput(
+        "originInfo",
+        "The information you just provided reflects:",
+        c("My own details", "The details belonging to someone I know", "Fictitious details"),
         width = "100%"
       ),
       br(),
@@ -656,6 +662,7 @@ server <- function(input, output) {
           Gender = handleNA(input$gender),
           CountryOfBirth = handleNA(input$countryBirth),
           CountryOfResidence = handleNA(input$countryResidence),
+          originInfo = handleNA(input$originInfo),
           stringsAsFactors = FALSE
         )
 
