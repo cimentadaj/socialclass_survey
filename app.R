@@ -9,14 +9,25 @@ library(DIGCLASS)
 library(contactdata)
 library(shinyjs)
 
-funFact <- function(image, text) {
-  div(
-    div(class = "catchy-title", "Mind-Blowing Facts"),
-    div(
+
+funFact <- function(image, text, reverse = FALSE) {
+  if (!reverse) {
+    container <- div(
       class = "fact-container",
       img(src = image, class = "fact-image"),
       div(class = "fact-text", text)
-    ),
+    )
+  } else {
+    container <- div(
+      class = "fact-container",
+      div(class = "fact-text", text),
+      img(src = image, class = "fact-image")
+    )
+  }
+
+  div(
+    div(class = "catchy-title", "Mind-Blowing Facts!"),
+    container
   )
 }
 
@@ -95,6 +106,11 @@ ui <- fluidEuTheme(
       .fact-image {
         width: 100px; /* Adjust the image size as needed */
         height: auto;
+      }
+
+      .scroll-container {
+        overflow-x: auto; /* Enable horizontal scrolling */
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling on touch devices */
       }
 
       .catchy-title {
@@ -233,7 +249,8 @@ ui <- fluidEuTheme(
       id = "second_page",
       funFact(
         image = "custom_css/images/income.gif",
-        text = "Did you know that only half of the U.S. kids born in the 1980s earn more than their parents, down from 90% in 1940?"
+        text = "Did you know that only half of the U.S. kids born in the 1980s earn more than their parents, down from 90% in 1940?",
+        reverse = TRUE
       ),
       hr(),
       br(),
@@ -258,13 +275,16 @@ ui <- fluidEuTheme(
           width = "100%"
         )
       ),
-      radioMatrixInput(
-        "share_input",
-        rowIDsName = "Which of these fits best your current situation?",
-        rowIDs = row_ids_matrix,
-        rowLLabels = c("", "", ""),
-        choices = col_ids_matrix,
-        labelsWidth = list("1px", "15px")
+      div(
+        class = "scroll-container", # Add this container around your widget
+        radioMatrixInput(
+          "share_input",
+          rowIDsName = "Which of these fits best your current situation?",
+          rowIDs = row_ids_matrix,
+          rowLLabels = c("", "", ""),
+          choices = col_ids_matrix,
+          labelsWidth = list("1px", "15px")
+        )
       ),
       actionButton("back_first_page", "Back"),
       actionButton("go_third_page", "Next Page", class = "btn-primary")
@@ -273,7 +293,11 @@ ui <- fluidEuTheme(
   hidden(
     div(
       id = "third_page",
-      em(p("Page 3/3")),
+      funFact(
+        image = "custom_css/images/books.gif",
+        text = "Did you know that Vietnamese students beat wealthier countries in global educational tests, showcasing a huge jump in social mobility?",
+        reverse = TRUE
+      ),
       br(),
       selectInput(
         "motherEducation",
