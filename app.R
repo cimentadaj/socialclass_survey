@@ -8,7 +8,28 @@ library(rbcb)
 library(DIGCLASS)
 library(contactdata)
 library(shinyjs)
+library(shiny.fluent)
 
+
+check_radio <- function(x) {
+  # First check: Ensure no NULL elements and match the length with row_ids_matrix
+  null_elements <- Filter(function(x) !is.null(x), x)
+  if (length(null_elements) != length(row_ids_matrix)) {
+    return("All row options are required")
+  }
+
+  # Additional check for the "No one" condition
+  for (list_element in x) {
+    tmp_el <- unlist(list_element)
+    # Check if "No one" is in the list and it's not the only element
+    if ("No one" %in% tmp_el && length(tmp_el) > 1) {
+      return("You cannot specify 'No one' with other options")
+    }
+  }
+
+  # If all checks passed
+  NULL
+}
 
 funFact <- function(image, text, reverse = FALSE) {
   if (!reverse) {
@@ -29,6 +50,17 @@ funFact <- function(image, text, reverse = FALSE) {
     div(class = "catchy-title", "Mind-Blowing Facts!"),
     container
   )
+}
+
+# Define a function for creating a small header
+headerSection <- function(image, text) {
+  container <- div(
+    class = "economic-header-container",
+    img(src = image, class = "economic-header-image"),
+    div(class = "economic-header-text", text)
+  )
+
+  div(class = "economic-header", container)
 }
 
 generateMultipleCheckDataFrame <- function(row_ids_matrix, col_ids_matrix, input_data) {
@@ -124,6 +156,29 @@ ui <- fluidEuTheme(
         margin-bottom: 20px; /* Space below to separate from content */
         font-family: 'Arial', sans-serif; /* Modern, readable font */
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+      }
+
+      .economic-header {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .economic-header-container {
+        display: inline-flex;
+        align-items: center;
+        background-color: #f0f0f0; /* Light grey background */
+        padding: 10px;
+        border-radius: 5px;
+      }
+
+      .economic-header-image {
+        width: 30px; /* Smaller image size */
+        height: auto;
+        margin-right: 10px;
+      }
+
+      .economic-header-text {
+        font-size: 18px; /* Adjusted text size for subheading */
       }"
       )
     )
@@ -205,43 +260,49 @@ ui <- fluidEuTheme(
           width = "100%"
         )
       ),
-      conditionalPanel(
-        condition = "input.working == 'Yes' || input.workedBefore == 'Yes'",
-        uiOutput("dynamicOccupationQuestion"),
-        uiOutput("dynamicEmploymentTypeQuestion"),
+      div(
+        id = "income_section",
         conditionalPanel(
-          condition = "input.employmentType == 'I am self-employed and I have employees' || input.employmentType == 'I was self-employed and I had employees' ",
-          uiOutput("dynamicNumberEmployees"),
-          uiOutput("numberEmployeeError")
-        ),
-        uiOutput("dynamicWageQuestion"),
-        numericInput(
-          "careerInterruptions",
-          "Approximately, how many career interruptions have you experienced?",
-          value = 0,
-          min = 0,
-          width = "100%"
-        ),
-        conditionalPanel(
-          condition = "input.careerInterruptions > 0",
-          numericInput(
-            "childrenInterruptions",
-            "How many of the total interruptions were to take care of children or other relatives?",
-            value = 0,
-            min = 0,
+          condition = "input.working == 'Yes' || input.workedBefore == 'Yes'",
+          headerSection(
+            image = "custom_css/images/economic_capital.png",
+            text = "Economic Capital"
+          ),
+          uiOutput("dynamicOccupationQuestion"),
+          uiOutput("dynamicEmploymentTypeQuestion"),
+          conditionalPanel(
+            condition = "input.employmentType == 'I am self-employed and I have employees' || input.employmentType == 'I was self-employed and I had employees' ",
+            uiOutput("dynamicNumberEmployees"),
+            uiOutput("numberEmployeeError")
+          ),
+          funFact(
+            image = "custom_css/images/income_ineq.png",
+            text = "Did you know that scientists have confirmed that most social inequality in the world today is due to income inequality?",
+            reverse = TRUE
+          ),
+          uiOutput("dynamicWageQuestion"),
+          textInput(
+            "careerInterruptions",
+            "Approximately, how many career interruptions have you experienced?",
             width = "100%"
           ),
-          numericInput(
-            "unemploymentInterruptions",
-            "How many of the total interruptions were due to unemployment?",
-            value = 0,
-            min = 0,
-            width = "100%"
-          ),
-          uiOutput("interruptionError")
+          conditionalPanel(
+            condition = "input.careerInterruptions > 0",
+            textInput(
+              "childrenInterruptions",
+              "How many of the total interruptions were to take care of children or other relatives?",
+              width = "100%"
+            ),
+            textInput(
+              "unemploymentInterruptions",
+              "How many of the total interruptions were due to unemployment?",
+              width = "100%"
+            ),
+            uiOutput("interruptionError")
+          )
         )
       ),
-      actionButton("go_second_page", "Next Page", class = "btn-primary")
+      actionButton("go_second_page", "Next Page", class = "btn-primary"),
     )
   ),
   hidden(
@@ -298,7 +359,12 @@ ui <- fluidEuTheme(
         text = "Did you know that Vietnamese students beat wealthier countries in global educational tests, showcasing a huge jump in social mobility?",
         reverse = TRUE
       ),
+      hr(),
       br(),
+      headerSection(
+        image = "custom_css/images/demographic_capital.png",
+        text = "Demographic Details"
+      ),
       selectInput(
         "motherEducation",
         "Highest education of your mother:",
@@ -317,7 +383,10 @@ ui <- fluidEuTheme(
         ),
         width = "100%"
       ),
-      uiOutput("motherOccupationInput"),
+      conditionalPanel(
+        condition = "input.motherEducation !== 'Not applicable' && input.motherEducation !== ''",
+        uiOutput("motherOccupationInput"),
+      ),
       selectInput(
         "fatherEducation",
         "Highest education of your father:",
@@ -336,7 +405,10 @@ ui <- fluidEuTheme(
         ),
         width = "100%"
       ),
-      uiOutput("fatherOccupationInput"),
+      conditionalPanel(
+        condition = "input.fatherEducation !== 'Not applicable' && input.fatherEducation !== ''",
+        uiOutput("fatherOccupationInput"),
+      ),
       numericInput(
         "age",
         "How old are you?",
@@ -369,7 +441,7 @@ ui <- fluidEuTheme(
       selectInput(
         "originInfo",
         "The information you just provided reflects:",
-        c("My own details", "The details belonging to someone I know", "Fictitious details"),
+        c("Choose" = "", "My own details", "The details belonging to someone I know", "Fictitious details"),
         width = "100%"
       ),
       br(),
@@ -379,7 +451,7 @@ ui <- fluidEuTheme(
   )
 )
 
-server <- function(input, output) {
+server <- function(input, output, session) {
   observeEvent(input$start_survey, {
     isco08 <- unique(gsub("\\'", "", DIGCLASS::all_labels$isco08[[2]]))
 
@@ -390,18 +462,18 @@ server <- function(input, output) {
           id = "div_id",
           selectInput(
             "occupation",
-            "What was your last occupation?",
+            "What is your current occupation? (Type it instead of scrolling)",
             choices = c("Write down your occupation" = "", isco08),
             selectize = TRUE,
             width = "100%"
           )
         )
-      } else if (input$workedBefore == "Yes") {
+      } else if (isTruthy(input$workedBefore) && input$workedBefore == "Yes") {
         tags$div(
           id = "div_id",
           selectInput(
             "occupation",
-            "What was your last occupation?",
+            "What was your last occupation? (Type it instead of scrolling)",
             choices = c("Write down your occupation" = "", isco08),
             selectize = TRUE,
             width = "100%"
@@ -425,7 +497,7 @@ server <- function(input, output) {
           ),
           width = "100%"
         )
-      } else if (input$workedBefore == "Yes") {
+      } else if (isTruthy(input$workedBefore) && input$workedBefore == "Yes") {
         selectInput(
           "employmentType",
           "Did you work on your own or for a company (last job)?",
@@ -447,7 +519,7 @@ server <- function(input, output) {
         numericInput(
           "numEmployees",
           "How many employees do you have (current job)?",
-          value = 1,
+          value = numeric(0),
           min = 1,
           width = "100%"
         )
@@ -455,7 +527,7 @@ server <- function(input, output) {
         numericInput(
           "numEmployees",
           "How many employees did you have (last job)?",
-          value = 1,
+          value = numeric(0),
           min = 1,
           width = "100%"
         )
@@ -481,6 +553,7 @@ server <- function(input, output) {
       }
 
       income_brackets <- c(
+        "Select income bracket" = "",
         "Less than €1,000",
         "€1,000 to €1,999",
         "€2,000 to €2,999",
@@ -503,7 +576,7 @@ server <- function(input, output) {
         width = "100%"
       )
 
-      if (input$working == "Yes" || input$workedBefore == "Yes") {
+      if (input$working == "Yes" || (isTruthy(input$workedBefore) && input$workedBefore == "Yes")) {
         fluidRow(
           column(12, comfortableWithExactIncome),
           conditionalPanel(
@@ -527,39 +600,29 @@ server <- function(input, output) {
     })
 
     output$motherOccupationInput <- renderUI({
-      if (!is.null(input$motherEducation) && input$motherEducation != "" &&
-        input$motherEducation != "Not applicable") {
-        tags$div(
-          id = "div_id",
-          selectInput(
-            "motherOccupation",
-            "Mother's occupation when you were 15:",
-            choices = c("Write down occupation" = "", isco08),
-            selectize = TRUE,
-            width = "100%"
-          )
+      tags$div(
+        id = "div_id",
+        selectInput(
+          "motherOccupation",
+          "Mother's occupation when you were 15:",
+          choices = c("Write down occupation" = "", isco08),
+          selectize = TRUE,
+          width = "100%"
         )
-      } else {
-        div()
-      }
+      )
     })
 
     output$fatherOccupationInput <- renderUI({
-      if (!is.null(input$fatherEducation) && input$fatherEducation != "" &&
-        input$fatherEducation != "Not applicable") {
-        tags$div(
-          id = "div_id",
-          selectInput(
-            "fatherOccupation",
-            "Father's occupation when you were 15:",
-            choices = c("Write down occupation" = "", isco08),
-            selectize = TRUE,
-            width = "100%"
-          )
+      tags$div(
+        id = "div_id",
+        selectInput(
+          "fatherOccupation",
+          "Father's occupation when you were 15:",
+          choices = c("Write down occupation" = "", isco08),
+          selectize = TRUE,
+          width = "100%"
         )
-      } else {
-        div()
-      }
+      )
     })
 
     observe({
@@ -567,8 +630,8 @@ server <- function(input, output) {
       req(input$childrenInterruptions)
       req(input$unemploymentInterruptions)
 
-      totalInterruptions <- input$careerInterruptions
-      sumInterruptions <- input$childrenInterruptions + input$unemploymentInterruptions
+      totalInterruptions <- as.numeric(input$careerInterruptions)
+      sumInterruptions <- as.numeric(input$childrenInterruptions) + as.numeric(input$unemploymentInterruptions)
 
       if (totalInterruptions > 0 && totalInterruptions != sumInterruptions) {
         errorMessage <- "The sum of interruptions for children and unemployment does not match the total reported."
@@ -635,19 +698,17 @@ server <- function(input, output) {
       }
     }
 
-    if (input$careerInterruptions > 0) {
+    if (input$careerInterruptions != "" && as.numeric(input$careerInterruptions) > 0) {
       iv_two$add_rule("unemploymentInterruptions", sv_required("This field is required"))
       iv_two$add_rule("childrenInterruptions", sv_required("This field is required"))
     }
 
     iv_two$enable()
 
-    req(input$careerInterruptions)
-    req(input$childrenInterruptions)
-    req(input$unemploymentInterruptions)
-
-    totalInterruptions <- input$careerInterruptions
-    sumInterruptions <- input$childrenInterruptions + input$unemploymentInterruptions
+    totalInterruptions <- ifelse(input$careerInterruptions == "", 0, as.numeric(input$careerInterruptions))
+    childrenInterruptions <- ifelse(input$childrenInterruptions == "", 0, as.numeric(input$childrenInterruptions))
+    unemploymentInterruptions <- ifelse(input$unemploymentInterruptions == "", 0, as.numeric(input$unemploymentInterruptions))
+    sumInterruptions <- childrenInterruptions + unemploymentInterruptions
 
     if (iv_two$is_valid() & totalInterruptions == sumInterruptions) {
       hide("first_page")
@@ -659,25 +720,6 @@ server <- function(input, output) {
     iv_three <- InputValidator$new()
     propertySavingsYesNo <- ifelse(is.null(input$propertySavingsYesNo), "", input$propertySavingsYesNo)
 
-    check_radio <- function(x) {
-      # First check: Ensure no NULL elements and match the length with row_ids_matrix
-      null_elements <- Filter(function(x) !is.null(x), x)
-      if (length(null_elements) != length(row_ids_matrix)) {
-        return("All row options are required")
-      }
-
-      # Additional check for the "No one" condition
-      for (list_element in x) {
-        tmp_el <- unlist(list_element)
-        # Check if "No one" is in the list and it's not the only element
-        if ("No one" %in% tmp_el && length(tmp_el) > 1) {
-          return("You cannot specify 'No one' with other options")
-        }
-      }
-
-      # If all checks passed
-      NULL
-    }
 
     iv_three$add_rule("propertySavingsYesNo", sv_required("This field is required"))
     iv_three$add_rule("share_input", check_radio)
