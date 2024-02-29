@@ -616,15 +616,10 @@ server <- function(input, output, session) {
 
     observe({
       if (!is.null(input$comfortableIncome)) {
-        print("passed")
         if (input$comfortableIncome == "Yes") {
           updateSelectInput(session, "incomeBrackets", selected = character(0))
-          print("incomebrackets")
-          print(input$incomeBrackets)
         } else {
           updateTextInput(session, "monthlyWage", value = "")
-          print("monthlywage")
-          print(input$monthlyWage)
         }
       }
     })
@@ -948,7 +943,6 @@ server <- function(input, output, session) {
 
       income <- NA
       if (!is.null(input$incomeBrackets) && input$incomeBrackets != "") {
-        print("brackets not null")
         # Remove the currency symbol and commas
         s_clean <- gsub("[€,]", "", input$incomeBrackets)
 
@@ -965,7 +959,6 @@ server <- function(input, output, session) {
           income <- as.numeric(gsub("[^0-9.]", "", s_clean))
         }
       } else if (!is.null(input$monthlyWage)) {
-        print("wage not null")
         cleanedInput <- gsub("[^0-9.]", "", input$monthlyWage)
         income <- as.numeric(cleanedInput)
       }
@@ -997,15 +990,6 @@ server <- function(input, output, session) {
       egp_class <- ifelse(is.na(egp_class), "Couldn't be determined", egp_class)
       # Remove roman numerals
       egp_class <- gsub("^.*?\\s", "", egp_class)
-
-      print("classes")
-      print(occupation_one_digit)
-      print(self_employed())
-      print(n_employees())
-      print(isco08_class)
-      print(egp_class)
-      print(oesch_class)
-      print(income_profile)
 
       descr_08 <- read_csv("isco_08_descriptions.csv")
       descr_class <- descr_08$description[descr_08$category == isco08_class]

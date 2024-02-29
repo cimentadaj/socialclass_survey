@@ -11,10 +11,10 @@ collect_income_data <- function() {
     rename_all(~ tolower(.x) %>% str_replace_all("\\(.+\\)", "")) %>%
     pivot_longer(-c(iso, country, year))
 
-  ppp <- read_csv("~/Downloads/ppp_2017.csv")
+  ppp <- read_csv("ppp_2017.csv")
   # https://www.xe.com/currencytables/?from=EUR&date=2017-05-01#table-section
-  euro_exchange <- read_csv("~/Downloads/euro_currency_exchange.csv")
-  country_currency <- read_csv("~/Downloads/country_currency.csv")
+  euro_exchange <- read_csv("euro_currency_exchange.csv")
+  country_currency <- read_csv("country_currency.csv")
 
   excluded_countries <-
     country_currency %>%

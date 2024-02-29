@@ -1,0 +1,271 @@
+country,currency_name,currency_code,equivalence
+Abkhazia,Abkhazian apsar[E],(none),(none)
+Abkhazia,Russian ruble,RUB,100
+Afghanistan,Afghan afghani,AFN,100
+Akrotiri and Dhekelia,Euro,EUR,100
+Albania,Albanian lek,ALL,100
+Algeria,Algerian dinar,DZD,100
+Andorra,Euro,EUR,100
+Angola,Angolan kwanza,AOA,100
+Anguilla,Eastern Caribbean dollar,XCD,100
+Antigua and Barbuda,Eastern Caribbean dollar,XCD,100
+Argentina,Argentine peso,ARS,100
+Armenia,Armenian dram,AMD,100
+Aruba,Aruban florin,AWG,100
+Ascension Island,Saint Helena pound,SHP,100
+Australia,Australian dollar,AUD,100
+Austria,Euro,EUR,100
+Azerbaijan,Azerbaijani manat,AZN,100
+"Bahamas, The",Bahamian dollar,BSD,100
+Bahrain,Bahraini dinar,BHD,1000
+Bangladesh,Bangladeshi taka,BDT,100
+Barbados,Barbadian dollar,BBD,100
+Belarus,Belarusian ruble,BYN,100
+Belgium,Euro,EUR,100
+Belize,Belize dollar,BZD,100
+Benin,West African CFA franc,XOF,100
+Bermuda,Bermudian dollar,BMD,100
+Bhutan,Bhutanese ngultrum,BTN,100
+Bhutan,Indian rupee,INR,100
+Bolivia,Bolivian boliviano,BOB,100
+Bonaire,United States dollar[F],USD,100
+Bosnia and Herzegovina,Bosnia and Herzegovina convertible mark,BAM,100
+Botswana,Botswana pula,BWP,100
+Brazil,Brazilian real,BRL,100
+British Indian Ocean Territory,United States dollar,USD,100
+British Virgin Islands,United States dollar,USD,100
+Brunei,Brunei dollar,BND,100
+Brunei,Singapore dollar,SGD,100
+Bulgaria,Bulgarian lev,BGN,100
+Burkina Faso,West African CFA franc,XOF,100
+Burundi,Burundian franc,BIF,100
+Cambodia,Cambodian riel,KHR,100
+Cambodia,United States dollar,USD,100
+Cameroon,Central African CFA franc,XAF,100
+Canada,Canadian dollar,CAD,100
+Cape Verde,Cape Verdean escudo,CVE,100
+Cayman Islands,Cayman Islands dollar,KYD,100
+Central African Republic,Central African CFA franc,XAF,100
+Chad,Central African CFA franc,XAF,100
+Chile,Chilean peso,CLP,100
+China,Renminbi,CNY,10
+Colombia,Colombian peso,COP,100
+Comoros,Comorian franc,KMF,100
+"Congo, Democratic Republic of the",Congolese franc,CDF,100
+"Congo, Republic of the",Central African CFA franc,XAF,100
+Cook Islands,Cook Islands dollar,(none),100
+Cook Islands,New Zealand dollar,NZD,100
+Costa Rica,Costa Rican colón,CRC,100
+Côte d'Ivoire,West African CFA franc,XOF,100
+Croatia,Euro,EUR,100
+Cuba,Cuban peso,CUP,100
+Curaçao,Netherlands Antillean guilder,ANG,100
+Cyprus,Euro,EUR,100
+Czech Republic,Czech koruna,CZK,100
+Denmark,Danish krone,DKK,100
+Djibouti,Djiboutian franc,DJF,100
+Dominica,Eastern Caribbean dollar,XCD,100
+Dominican Republic,Dominican peso,DOP,100
+East Timor,United States dollar,USD,100
+Ecuador,United States dollar,USD,100
+Egypt,Egyptian pound,EGP,100
+El Salvador,United States dollar,USD,100
+El Salvador,Bitcoin[4] (as legal tender),(none),100000000
+Equatorial Guinea,Central African CFA franc,XAF,100
+Eritrea,Eritrean nakfa,ERN,100
+Estonia,Euro,EUR,100
+Eswatini,Swazi lilangeni,SZL,100
+Eswatini,South African rand,ZAR,100
+Ethiopia,Ethiopian birr,ETB,100
+Falkland Islands,Falkland Islands pound,FKP,100
+Falkland Islands,Sterling,GBP,100
+Faroe Islands,Danish krone,DKK,100
+Faroe Islands,Faroese króna,(none),100
+Fiji,Fijian dollar,FJD,100
+Finland,Euro,EUR,100
+France,Euro,EUR,100
+French Polynesia,CFP franc,XPF,100
+French Southern and Antarctic Lands,Euro,EUR,100
+Gabon,Central African CFA franc,XAF,100
+"Gambia, The",Gambian dalasi,GMD,100
+Georgia,Georgian lari,GEL,100
+Germany,Euro,EUR,100
+Ghana,Ghanaian cedi,GHS,100
+Gibraltar,Gibraltar pound,GIP,100
+Gibraltar,Sterling,GBP,100
+Greece,Euro,EUR,100
+Greenland,Danish krone,DKK,100
+Grenada,Eastern Caribbean dollar,XCD,100
+Guatemala,Guatemalan quetzal,GTQ,100
+Bailiwick of Guernsey,Guernsey pound,(none),100
+Bailiwick of Guernsey,Sterling,GBP,100
+Guinea,Guinean franc,GNF,100
+Guinea-Bissau,West African CFA franc,XOF,100
+Guyana,Guyanese dollar,GYD,100
+Haiti,Haitian gourde,HTG,100
+Honduras,Honduran lempira,HNL,100
+Hong Kong,Hong Kong dollar,HKD,100
+Hungary,Hungarian forint,HUF,100
+Iceland,Icelandic króna,ISK,100
+India,Indian rupee,INR,100
+Indonesia,Indonesian rupiah,IDR,100
+Iran,Iranian rial,IRR,1
+Iraq,Iraqi dinar,IQD,1000
+Ireland,Euro,EUR,100
+Isle of Man,Manx pound,(none),100
+Isle of Man,Sterling,GBP,100
+Israel,Israeli new shekel,ILS,100
+Italy,Euro,EUR,100
+Jamaica,Jamaican dollar,JMD,100
+Japan,Japanese yen,JPY,100
+Jersey,Jersey pound,(none),100
+Jersey,Sterling,GBP,100
+Jordan,Jordanian dinar,JOD,100
+Kazakhstan,Kazakhstani tenge,KZT,100
+Kenya,Kenyan shilling,KES,100
+Kiribati,Kiribati dollar[E],(none),100
+Kiribati,Australian dollar,AUD,100
+"Korea, North",North Korean won,KPW,100
+"Korea, South",South Korean won,KRW,100
+Kosovo,Euro,EUR,100
+Kuwait,Kuwaiti dinar,KWD,1000
+Kyrgyzstan,Kyrgyz som,KGS,100
+Laos,Lao kip,LAK,100
+Latvia,Euro,EUR,100
+Lebanon,Lebanese pound,LBP,100
+Lesotho,Lesotho loti,LSL,100
+Lesotho,South African rand,ZAR,100
+South Georgia and the South Sandwich Islands,Falkland Islands pound,FKP,100
+South Georgia and the South Sandwich Islands,Sterling,GBP,100
+Liberia,Liberian dollar,LRD,100
+Liberia,United States dollar,USD,100
+Libya,Libyan dinar,LYD,1000
+Liechtenstein,Swiss franc,CHF,100
+Lithuania,Euro,EUR,100
+Luxembourg,Euro,EUR,100
+Macau,Macanese pataca,MOP,100
+Macau,Hong Kong dollar,HKD,100
+Madagascar,Malagasy ariary,MGA,5
+Malawi,Malawian kwacha,MWK,100
+Malaysia,Malaysian ringgit,MYR,100
+Maldives,Maldivian rufiyaa,MVR,100
+Mali,West African CFA franc,XOF,100
+Malta,Euro,EUR,100
+Marshall Islands,United States dollar,USD,100
+Mauritania,Mauritanian ouguiya,MRU,5
+Mauritius,Mauritian rupee,MUR,100
+Mexico,Mexican peso,MXN,100
+Micronesia,United States dollar,USD,100
+Moldova,Moldovan leu,MDL,100
+Monaco,Euro,EUR,100
+Mongolia,Mongolian tögrög,MNT,100
+Montenegro,Euro,EUR,100
+Montserrat,Eastern Caribbean dollar,XCD,100
+Morocco,Moroccan dirham,MAD,100
+Mozambique,Mozambican metical,MZN,100
+Myanmar,Burmese kyat,MMK,100
+Namibia,Namibian dollar,NAD,100
+Namibia,South African rand,ZAR,100
+Nauru,Australian dollar,AUD,100
+Nepal,Nepalese rupee,NPR,100
+Nepal,Indian rupee,INR,100
+Netherlands[F],Euro,EUR,100
+New Caledonia,CFP franc,XPF,100
+New Zealand,New Zealand dollar,NZD,100
+Nicaragua,Nicaraguan córdoba,NIO,100
+Niger,West African CFA franc,XOF,100
+Nigeria,Nigerian naira,NGN,100
+Niue,New Zealand dollar,NZD,100
+Niue,Niue dollar[E],(none),100
+North Macedonia,Macedonian denar,MKD,100
+Northern Cyprus,Turkish lira,TRY,100
+Norway,Norwegian krone,NOK,100
+Oman,Omani rial,OMR,1000
+Pakistan,Pakistani rupee,PKR,100
+Palau,United States dollar,USD,100
+Palestine,Israeli new shekel,ILS,100
+Palestine,Jordanian dinar,JOD,100
+Panama,Panamanian balboa,PAB,100
+Panama,United States dollar,USD,100
+Papua New Guinea,Papua New Guinean kina,PGK,100
+Paraguay,Paraguayan guaraní,PYG,100
+Peru,Peruvian sol,PEN,100
+Philippines,Philippine peso,PHP,100
+Pitcairn Islands,New Zealand dollar,NZD,100
+Pitcairn Islands,Pitcairn Islands dollar[E],(none),100
+Poland,Polish złoty,PLN,100
+Portugal,Euro,EUR,100
+Qatar,Qatari riyal,QAR,100
+Romania,Romanian leu,RON,100
+Russia,Russian ruble,RUB,100
+Rwanda,Rwandan franc,RWF,100
+Saba,United States dollar[F],USD,100
+Sahrawi Republic[I],Moroccan dirham,MAD,100
+Sahrawi Republic[I],Sahrawi peseta,(none),100
+Saint Helena,Saint Helena pound,SHP,100
+Saint Helena,Sterling,GBP,100
+Saint Kitts and Nevis,Eastern Caribbean dollar,XCD,100
+Saint Lucia,Eastern Caribbean dollar,XCD,100
+Saint Pierre and Miquelon,Euro,EUR,100
+Saint Pierre and Miquelon,Canadian Dollar,CAD,100
+Saint Vincent and the Grenadines,Eastern Caribbean dollar,XCD,100
+Samoa,Samoan tālā,WST,100
+Saint Barthélemy,Euro,EUR,100
+San Marino,Euro,EUR,100
+São Tomé and Príncipe,São Tomé and Príncipe dobra,STN,100
+Saudi Arabia,Saudi riyal,SAR,100
+Senegal,West African CFA franc,XOF,100
+Serbia,Serbian dinar,RSD,100
+Seychelles,Seychellois rupee,SCR,100
+Sierra Leone,Sierra Leonean leone,SLE,100
+Singapore,Singapore dollar,SGD,100
+Singapore,Brunei dollar,BND,100
+Sint Eustatius,United States dollar[F],USD,100
+Sint Maarten,Netherlands Antillean guilder,ANG,100
+Slovakia,Euro,EUR,100
+Slovenia,Euro,EUR,100
+Solomon Islands,Solomon Islands dollar,SBD,100
+Somalia,Somali shilling,SOS,100
+Somaliland,Somaliland shilling,(none),100
+South Africa,South African rand,ZAR,100
+South Ossetia,Russian ruble,RUB,100
+South Sudan,South Sudanese pound,SSP,100
+Spain,Euro,EUR,100
+Sri Lanka,Sri Lankan rupee,LKR,100
+Sudan,Sudanese pound,SDG,100
+Suriname,Surinamese dollar,SRD,100
+Sweden,Swedish krona,SEK,100
+Switzerland,Swiss franc,CHF,100
+Syria,Syrian pound,SYP,100
+Taiwan,New Taiwan dollar,TWD,100
+Tajikistan,Tajikistani somoni,TJS,100
+Tanzania,Tanzanian shilling,TZS,100
+Thailand,Thai baht,THB,100
+Togo,West African CFA franc,XOF,100
+Tonga,Tongan paʻanga[K],TOP,100
+Transnistria,Transnistrian ruble,(none),100
+Trinidad and Tobago,Trinidad and Tobago dollar,TTD,100
+Tunisia,Tunisian dinar,TND,1000
+Turkey,Turkish lira,TRY,100
+Turkmenistan,Turkmenistani manat,TMT,100
+Turks and Caicos Islands,United States dollar,USD,100
+Tuvalu,Tuvaluan dollar,(none),100
+Tuvalu,Australian dollar,AUD,100
+Uganda,Ugandan shilling,UGX,(none)
+Ukraine,Ukrainian hryvnia,UAH,100
+United Arab Emirates,United Arab Emirates dirham,AED,100
+United Kingdom,Sterling,GBP,100
+United States,United States dollar,USD,100
+Uruguay,Uruguayan peso,UYU,100
+Uzbekistan,Uzbekistani sum,UZS,100
+Vanuatu,Vanuatu vatu,VUV,100
+Vatican City,Euro,EUR,100
+Venezuela,Venezuelan sovereign bolívar,VES,1
+Venezuela,Venezuelan digital bolívar,VED,100
+Venezuela,United States dollar,USD,100
+Vietnam,Vietnamese đồng,VND,10
+Wallis and Futuna,CFP franc,XPF,100
+Yemen,Yemeni rial,YER,100
+Zambia,Zambian kwacha,ZMW,100
+Zimbabwe,Zimbabwean dollar,(none),100
+Zimbabwe,United States dollar,USD,100
