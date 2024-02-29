@@ -10,6 +10,25 @@ library(contactdata)
 library(shinyjs)
 library(shiny.fluent)
 
+source("income.R")
+
+# Normalize country names to match the income data
+cnt_list <- contactdata::list_countries()
+cnt_list <- gsub("US", "United States", cnt_list)
+cnt_list <- gsub("UK", "United Kingdom", cnt_list)
+cnt_list <- gsub("Turkey", "Turkiye", cnt_list)
+cnt_list <- gsub("Gambia", "Gambia, The", cnt_list)
+cnt_list <- gsub("Trinidad & Tobago", "Trinidad and Tobago", cnt_list)
+cnt_list <- gsub("South Korea", "Korea, Republic of", cnt_list)
+cnt_list <- gsub("Bosnia", "Bosnia and Herzegovina", cnt_list)
+cnt_list <- gsub("Bahamas", "Bahamas, The", cnt_list)
+cnt_list <- gsub("Congo - Kinshasa|Congo - Brazzaville", "Congo, Democratic Republic of the", cnt_list)
+cnt_list <- gsub("Côte d’Ivoire", "Cote d'Ivoire", cnt_list)
+cnt_list <- gsub("St. Vincent & Grenadines", "Saint Vincent and the Grenadines", cnt_list)
+cnt_list <- gsub("St. Lucia", "Saint Lucia", cnt_list)
+cnt_list <- gsub("São Tomé & Príncipe", "Sao Tome and Principe", cnt_list)
+cnt_list <- cnt_list[!cnt_list %in% c("Palestine", "North Korea")]
+
 
 check_radio <- function(x) {
   # First check: Ensure no NULL elements and match the length with row_ids_matrix
@@ -179,6 +198,67 @@ ui <- fluidEuTheme(
 
       .economic-header-text {
         font-size: 18px; /* Adjusted text size for subheading */
+      }
+      .social-classes-container {
+        display: flex; /* Use flex layout */
+        justify-content: center; /* Center items horizontally */
+        gap: 20px; /* Adjust the space between class containers */
+        align-items: center; /* Align items vertically */
+        margin-bottom: 20px; /* Space below the container */
+      }
+
+      .class-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center; /* Ensure text alignment is centered for labels */
+      }
+
+      .class-icon {
+        width: 60px; /* Icon width */
+        height: 60px; /* Icon height */
+        /* 'display: block;' is removed since flexbox handles the alignment */
+      }
+
+      .class-label {
+        margin-top: 5px; /* Space between icon and label */
+      }
+
+      /* Custom styles for the progress bar and income profile text */
+      .progress-custom {
+        height: 20px;
+        background-color: #eee;
+        border-radius: 10px;
+        margin-top: 20px;
+      }
+
+      .progress-bar-custom {
+        background-color: #4CAF50;
+        transition: width 0.6s ease;
+        border-radius: 10px;
+      }
+
+      .income-profile-text {
+        text-align: center;
+        margin-top: 10px;
+      }
+      /* Responsive font sizes for blockquote */
+      blockquote {
+        font-size: 1.5em;
+      }
+
+      /* Adjust font size for smaller devices */
+      @media (max-width: 768px) {
+        blockquote {
+          font-size: 1.2em; /* Slightly smaller font size for tablets and mobile phones */
+        }
+      }
+
+      /* Further adjustments for very small screens */
+      @media (max-width: 480px) {
+        blockquote {
+          font-size: 1em;
+        }
       }"
       )
     )
@@ -427,14 +507,14 @@ ui <- fluidEuTheme(
       selectInput(
         "countryBirth",
         "In which country were you born?",
-        c("Choose country" = "", contactdata::list_countries()),
+        c("Choose country" = "", cnt_list),
         selectize = TRUE,
         width = "100%"
       ),
       selectInput(
         "countryResidence",
         "In which country do you currently live?",
-        c("Choose country" = "", contactdata::list_countries()),
+        c("Choose country" = "", cnt_list),
         selectize = TRUE,
         width = "100%"
       ),
@@ -534,6 +614,21 @@ server <- function(input, output, session) {
       }
     })
 
+    observe({
+      if (!is.null(input$comfortableIncome)) {
+        print("passed")
+        if (input$comfortableIncome == "Yes") {
+          updateSelectInput(session, "incomeBrackets", selected = character(0))
+          print("incomebrackets")
+          print(input$incomeBrackets)
+        } else {
+          updateTextInput(session, "monthlyWage", value = "")
+          print("monthlywage")
+          print(input$monthlyWage)
+        }
+      }
+    })
+
     output$dynamicWageQuestion <- renderUI({
       req(input$working)
 
@@ -586,7 +681,7 @@ server <- function(input, output, session) {
               textInput(
                 "monthlyWage",
                 income_title,
-                placeholder = "€1,500",
+                placeholder = "1500",
                 width = "100%"
               )
             )
@@ -745,6 +840,36 @@ server <- function(input, output, session) {
     show("second_page")
   })
 
+  observe({
+  })
+
+  self_employed <- reactive({
+    if (input$working == "Yes") {
+      req(input$employmentType)
+      if (input$employmentType %in% c("I am self-employed and I don’t have any employees", "I am self-employed and I have employees", "I was self-employed and I didn’t have any employees", "I was self-employed and I had employees")) {
+        1
+      } else {
+        0
+      }
+    } else {
+      0
+    }
+  })
+
+  n_employees <- reactive({
+    req(input$employmentType)
+    if (input$employmentType %in% c("I am self-employed and I have employees", "I was self-employed and I had employees")) {
+      # Ensure the input$numEmployees is not NULL before using it
+      if (!is.null(input$numEmployees) && length(input$numEmployees) != 0) {
+        as.numeric(input$numEmployees)
+      } else {
+        0 # Default value if numEmployees is NULL
+      }
+    } else {
+      0 # Default value if not self-employed with employees
+    }
+  })
+
   observeEvent(input$submit_button, {
     # Initialize shinyvalidate
     submit_iv <- InputValidator$new()
@@ -816,19 +941,127 @@ server <- function(input, output, session) {
       })
 
       gs4_auth(path = "./service-account.json")
-
       sheet_append(
         "https://docs.google.com/spreadsheets/d/1JyvLgsdpJ2WruGIAPqBWFMXxskeF38wjEPs77P4MDoo/edit#gid=0",
         responsesDF()
       )
 
+      income <- NA
+      if (!is.null(input$incomeBrackets) && input$incomeBrackets != "") {
+        print("brackets not null")
+        # Remove the currency symbol and commas
+        s_clean <- gsub("[€,]", "", input$incomeBrackets)
+
+        # Check if the string contains "to"
+        if (grepl(" to ", s_clean)) {
+          # Split the string based on "to" and convert to numbers
+          range_parts <- strsplit(s_clean, " to ")[[1]]
+          start_num <- as.numeric(range_parts[1])
+          end_num <- as.numeric(range_parts[2])
+          # Calculate the middle number
+          income <- (start_num + end_num) / 2
+        } else {
+          # For single-value strings, remove non-numeric characters except the decimal point, then convert to numeric
+          income <- as.numeric(gsub("[^0-9.]", "", s_clean))
+        }
+      } else if (!is.null(input$monthlyWage)) {
+        print("wage not null")
+        cleanedInput <- gsub("[^0-9.]", "", input$monthlyWage)
+        income <- as.numeric(cleanedInput)
+      }
+
+      income_profile <- process_income_data(input$countryResidence, income)
+
+      occ <- paste0("'", input$occupation, "'")
+      isco08_digit <- all_labels$isco08$ISCO08[all_labels$isco08$`ISCO08-label-E` == occ]
+      occupation_one_digit <- isco08_swap(isco08_digit, from = 4, to = 1)
+      isco08_class <- all_labels$isco08$`ISCO08-label-E`[all_labels$isco08$ISCO08 == occupation_one_digit]
+
+      egp_class <- isco88_to_egp(
+        isco08_to_isco88(occupation_one_digit),
+        self_employed(),
+        n_employees(),
+        n_classes = 5,
+        label = TRUE
+      )
+
+      oesch_class <- isco08_to_oesch(
+        occupation_one_digit,
+        self_employed(),
+        n_employees(),
+        n_classes = 5,
+        label = TRUE
+      )
+
+      oesch_class <- ifelse(is.na(oesch_class), "Couldn't be determined", oesch_class)
+      egp_class <- ifelse(is.na(egp_class), "Couldn't be determined", egp_class)
+      # Remove roman numerals
+      egp_class <- gsub("^.*?\\s", "", egp_class)
+
+      print("classes")
+      print(occupation_one_digit)
+      print(self_employed())
+      print(n_employees())
+      print(isco08_class)
+      print(egp_class)
+      print(oesch_class)
+      print(income_profile)
+
+      descr_08 <- read_csv("isco_08_descriptions.csv")
+      descr_class <- descr_08$description[descr_08$category == isco08_class]
+
+      if (income_profile$found) {
+        income_block <- div(
+          headerSection(
+            image = "custom_css/images/economic_capital.png",
+            text = "Income profile"
+          ),
+          progressBar(id = "pb", value = income_profile$position * 10, status = "success", size = "s"),
+          tags$p(paste("You earn more than", income_profile$below, "% of the population and less than", income_profile$above, "% of the population of", input$countryResidence))
+        )
+      } else {
+        income_block <- div(
+          tags$p("We are not able to locate income related information for you country of residence. If you'd like to test this functionality, please choose another country of residence, even as a test.")
+        )
+      }
+
       # Show a modal dialog after submission
       showModal(
         modalDialog(
-          title = "Thank you!",
-          "Your response has been submitted successfully! 😊",
+          title = "Social Classes and Income Profile",
+          tags$div(
+            tags$p("Your response has been submitted successfully! 😊 Below you will find your social class according to three standard class schemas:"),
+            tags$ul(
+              tags$li(tags$strong("ISCO-2008 classification")),
+              tags$li(tags$strong("Oesch classification")),
+              tags$li(tags$strong("EGP classification"))
+            ),
+          ),
+          br(),
+          tags$div(
+            class = "social-classes-container",
+            tags$div(
+              class = "class-container",
+              tags$img(src = "custom_css/images/isco_08.png", class = "class-icon"),
+              tags$div(tags$strong(isco08_class), class = "class-label")
+            ),
+            tags$div(
+              class = "class-container",
+              tags$img(src = "custom_css/images/oesch.png", class = "class-icon"),
+              tags$div(tags$strong(oesch_class), class = "class-label")
+            ),
+            tags$div(
+              class = "class-container",
+              tags$img(src = "custom_css/images/egp.png", class = "class-icon"),
+              tags$div(tags$strong(egp_class), class = "class-label")
+            )
+          ),
+          br(),
+          tags$blockquote(descr_class),
+          br(),
+          income_block,
           easyClose = TRUE,
-          footer = NULL
+          footer = modalButton("Close")
         )
       )
     }
