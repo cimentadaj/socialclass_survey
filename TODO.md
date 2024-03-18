@@ -1,9 +1,21 @@
-- [ ] Occupation too long, how do we deal with this? Same for mother/father occupation
+- [X] Occupation too long, how do we deal with this? Same for mother/father occupation
 - [X] Fijar que las interrupciones sean coherentes y tengan que sumar.
 - [X] Pregunta 5.1 Personas a tu cargo: evitar numero negativos
 - [X] Pregunta 8. Separar en 2 preguntas: si pones que no, no deberia salir las otras opciones.
 - [X] Pregunta 9. Change sporadically for Sometimes
-- [ ] Pregunta 9. Multiple buttons should be possible for partner, children under 16, children, etc..
+- [X] Pregunta 9. Multiple buttons should be possible for partner, children under 16, children, etc..
 - [X] Income questions: brackets
-- [ ] Questions appear sequentially
-- [ ] Input page and outbound page
+- [X] Questions appear sequentially
+- [X] Input page and outbound page
+- [X] Quitar la enumeración de preguntas
+- [X] Poner que el dropdown de ocupación no se vea como dropdown para que tengan que escribir y poner el titulo de la pregunta que tienen que escribir
+- [X] Radiomatrix cuando pones "no one" no te puede dejar responder lo otro
+- [X] Gender: anadir prefer not to tell
+- [X] hacer la encuestra mas "sexy"
+- [X] última pregunta: estos datos son fictios o reales?
+- [X] preguntarle a leire como hacer el tema de la clase que se va a determinar
+- [X] Explicar a leire que las preguntas no puede ser secuencial
+
+- [X] DIGCLASS Classifier: project name
+- [X] Cambiar objetivo de encuesta a: facts de social mobility
+- [X] Poner en strong type it, don't write it

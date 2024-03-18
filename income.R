@@ -4,7 +4,7 @@ library(tidyr)
 library(stringr)
 
 collect_income_data <- function() {
-  wiid <- read_delim("~/Downloads/wiid-data.csv", delim = ";")
+  wiid <- read_delim("wiid-data.csv", delim = ";")
 
   wiid_c <-
     wiid %>%

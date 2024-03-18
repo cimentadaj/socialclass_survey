@@ -268,7 +268,7 @@ ui <- fluidEuTheme(
   br(),
   conditionalPanel(
     condition = "input.start_survey == 0 || typeof(input.start_survey) === 'undefined'",
-    titlePanel("Shape the Future of Social Mobility in the European Union"),
+    titlePanel("The DIGCLASS Classifier: A survey to calculate your social class in the modern world"),
     subtitle = div(
       style = "margin-bottom: 20px;",
       "Your Voice Matters: Participate in Our Survey to Help Us Understand and Improve Social Mobility Across EU Countries."
@@ -277,7 +277,7 @@ ui <- fluidEuTheme(
       src = "custom_css/images/eu-social-mobility.jpeg",
       style = "width: 100%; max-width: 600px; height: auto; margin-bottom: 20px;"
     ),
-    p("We invite you to share your experiences and views on social mobility within the European Union. Your participation will provide invaluable insights for shaping policies that aim to improve opportunities for all."),
+    p("You are invited to participate in a survey on social mobility facts. By providing details about your work history, education, demographic background, and family dynamics, we will calculate your social class and position on your country's income scale. This invaluable input will be instrumental in informing policies aimed at broadening opportunities for all. Your participation is highly valued and crucial in fostering meaningful change."),
     actionButton("start_survey", "Begin Survey Now", class = "btn-primary"),
     hr(),
     h4("Frequently Asked Questions"),
@@ -294,7 +294,7 @@ ui <- fluidEuTheme(
       id = "first_page",
       funFact(
         image = "custom_css/images/test.gif",
-        text = "Did you know that in Denmark over 80% of low-income kids climb to a higher income bracket, showcasing high social mobility?"
+        text = "Did you know that on average it takes two generations for someone in poverty to reach a median income in Denmark? In France it takes 6 generations and in Brazil 9 generations."
       ),
       hr(),
       br(),
@@ -383,6 +383,10 @@ ui <- fluidEuTheme(
         )
       ),
       actionButton("go_second_page", "Next Page", class = "btn-primary"),
+      hr(),
+      h4(strong("Fun Fact Sources:\n")),
+      h6(em("- Geiger, Thierry, et al. 'Global Social Mobility Index 2020: Why Economies Benefit from Fixing Inequality.' Geneva: World Economic Forum. 2020.\n")),
+      h6(em("- Chancel, L., Piketty, T., Saez, E., Zucman, G. et al. World Inequality Report 2022, World Inequality Lab."))
     )
   ),
   hidden(
@@ -428,7 +432,10 @@ ui <- fluidEuTheme(
         )
       ),
       actionButton("back_first_page", "Back"),
-      actionButton("go_third_page", "Next Page", class = "btn-primary")
+      actionButton("go_third_page", "Next Page", class = "btn-primary"),
+      hr(),
+      h4(strong("Fun Fact Sources:\n")),
+      h6(em("- Chetty, Raj, et al. 'The fading American dream: Trends in absolute income mobility since 1940.' Science 356.6336 (2017): 398-406."))
     )
   ),
   hidden(
@@ -526,7 +533,10 @@ ui <- fluidEuTheme(
       ),
       br(),
       actionButton("back_second_page", "Back"),
-      actionButton("submit_button", "Submit", class = "btn-primary")
+      actionButton("submit_button", "Submit", class = "btn-primary"),
+      hr(),
+      h4(strong("Fun Fact Sources:\n")),
+      h6(em("- Dang, Hai-Anh, et al. 'What Explains Vietnam's Exceptional Performance in Education Relative to Other Countries? Analysis of the 2012, 2015, and 2018 PISA Data.' Economics of Education Review 96 (2023): 102434."))
     )
   )
 )
@@ -542,7 +552,7 @@ server <- function(input, output, session) {
           id = "div_id",
           selectInput(
             "occupation",
-            "What is your current occupation? (Type it instead of scrolling)",
+            p("What is your current occupation?", em(tags$span(style = "text-decoration: underline;", "(Type it instead of scrolling)"))),
             choices = c("Write down your occupation" = "", isco08),
             selectize = TRUE,
             width = "100%"
@@ -553,7 +563,7 @@ server <- function(input, output, session) {
           id = "div_id",
           selectInput(
             "occupation",
-            "What was your last occupation? (Type it instead of scrolling)",
+            p("What was your last occupation?", em(tags$span(style = "text-decoration: underline;", "(Type it instead of scrolling)"))),
             choices = c("Write down your occupation" = "", isco08),
             selectize = TRUE,
             width = "100%"
@@ -630,7 +640,7 @@ server <- function(input, output, session) {
       # New question for comfort in sharing exact income
       comfortableWithExactIncome <- fancyRadioButtons(
         "comfortableIncome",
-        "Would you feel comfortable sharing your exact monthly income?",
+        "Would you feel comfortable sharing your exact monthly wage?",
         choices = c("Yes", "No"),
         selected = character(0),
         width = "100%"
@@ -694,7 +704,7 @@ server <- function(input, output, session) {
         id = "div_id",
         selectInput(
           "motherOccupation",
-          "Mother's occupation when you were 15:",
+          p("Mother's occupation when you were 15", em(tags$span(style = "text-decoration: underline;", "(Type it instead of scrolling)"))),
           choices = c("Write down occupation" = "", isco08),
           selectize = TRUE,
           width = "100%"
@@ -707,7 +717,7 @@ server <- function(input, output, session) {
         id = "div_id",
         selectInput(
           "fatherOccupation",
-          "Father's occupation when you were 15:",
+          p("Father's occupation when you were 15", em(tags$span(style = "text-decoration: underline;", "(Type it instead of scrolling)"))),
           choices = c("Write down occupation" = "", isco08),
           selectize = TRUE,
           width = "100%"
@@ -809,7 +819,6 @@ server <- function(input, output, session) {
   observeEvent(input$go_third_page, {
     iv_three <- InputValidator$new()
     propertySavingsYesNo <- ifelse(is.null(input$propertySavingsYesNo), "", input$propertySavingsYesNo)
-
 
     iv_three$add_rule("propertySavingsYesNo", sv_required("This field is required"))
     iv_three$add_rule("share_input", check_radio)
@@ -941,115 +950,246 @@ server <- function(input, output, session) {
         responsesDF()
       )
 
-      income <- NA
-      if (!is.null(input$incomeBrackets) && input$incomeBrackets != "") {
-        # Remove the currency symbol and commas
-        s_clean <- gsub("[€,]", "", input$incomeBrackets)
+      print("pass here")
 
-        # Check if the string contains "to"
-        if (grepl(" to ", s_clean)) {
-          # Split the string based on "to" and convert to numbers
-          range_parts <- strsplit(s_clean, " to ")[[1]]
-          start_num <- as.numeric(range_parts[1])
-          end_num <- as.numeric(range_parts[2])
-          # Calculate the middle number
-          income <- (start_num + end_num) / 2
-        } else {
-          # For single-value strings, remove non-numeric characters except the decimal point, then convert to numeric
-          income <- as.numeric(gsub("[^0-9.]", "", s_clean))
+      if (input$working == "Yes" || (isTruthy(input$workedBefore) && input$workedBefore == "Yes")) {
+        income <- NA
+        if (!is.null(input$incomeBrackets) && input$incomeBrackets != "") {
+          # Remove the currency symbol and commas
+          s_clean <- gsub("[€,]", "", input$incomeBrackets)
+
+          # Check if the string contains "to"
+          if (grepl(" to ", s_clean)) {
+            # Split the string based on "to" and convert to numbers
+            range_parts <- strsplit(s_clean, " to ")[[1]]
+            start_num <- as.numeric(range_parts[1])
+            end_num <- as.numeric(range_parts[2])
+            # Calculate the middle number
+            income <- (start_num + end_num) / 2
+          } else {
+            # For single-value strings, remove non-numeric characters except the decimal point, then convert to numeric
+            income <- as.numeric(gsub("[^0-9.]", "", s_clean))
+          }
+        } else if (!is.null(input$monthlyWage)) {
+          cleanedInput <- gsub("[^0-9.]", "", input$monthlyWage)
+          income <- as.numeric(cleanedInput)
         }
-      } else if (!is.null(input$monthlyWage)) {
-        cleanedInput <- gsub("[^0-9.]", "", input$monthlyWage)
-        income <- as.numeric(cleanedInput)
-      }
 
-      income_profile <- process_income_data(input$countryResidence, income)
+        income_profile <- process_income_data(input$countryResidence, income)
 
-      occ <- paste0("'", input$occupation, "'")
-      isco08_digit <- all_labels$isco08$ISCO08[all_labels$isco08$`ISCO08-label-E` == occ]
-      occupation_one_digit <- isco08_swap(isco08_digit, from = 4, to = 1)
-      isco08_class <- all_labels$isco08$`ISCO08-label-E`[all_labels$isco08$ISCO08 == occupation_one_digit]
+        occ <- paste0("'", input$occupation, "'")
+        isco08_digit <- all_labels$isco08$ISCO08[all_labels$isco08$`ISCO08-label-E` == occ]
+        occupation_one_digit <- isco08_swap(isco08_digit, from = 4, to = 1)
+        isco08_class <- all_labels$isco08$`ISCO08-label-E`[all_labels$isco08$ISCO08 == occupation_one_digit]
 
-      egp_class <- isco88_to_egp(
-        isco08_to_isco88(occupation_one_digit),
-        self_employed(),
-        n_employees(),
-        n_classes = 5,
-        label = TRUE
-      )
+        egp_class <- isco88_to_egp(
+          isco08_to_isco88(occupation_one_digit),
+          self_employed(),
+          n_employees(),
+          n_classes = 5,
+          label = TRUE
+        )
 
-      oesch_class <- isco08_to_oesch(
-        occupation_one_digit,
-        self_employed(),
-        n_employees(),
-        n_classes = 5,
-        label = TRUE
-      )
+        oesch_class <- isco08_to_oesch(
+          occupation_one_digit,
+          self_employed(),
+          n_employees(),
+          n_classes = 5,
+          label = TRUE
+        )
 
-      oesch_class <- ifelse(is.na(oesch_class), "Couldn't be determined", oesch_class)
-      egp_class <- ifelse(is.na(egp_class), "Couldn't be determined", egp_class)
-      # Remove roman numerals
-      egp_class <- gsub("^.*?\\s", "", egp_class)
+        oesch_class <- ifelse(is.na(oesch_class), "Couldn't be determined", oesch_class)
+        egp_class <- ifelse(is.na(egp_class), "Couldn't be determined", egp_class)
+        # Remove roman numerals
+        egp_class <- gsub("^.*?\\s", "", egp_class)
 
-      descr_08 <- read_csv("isco_08_descriptions.csv")
-      descr_class <- descr_08$description[descr_08$category == isco08_class]
+        descr_08 <- read_csv("isco_08_descriptions.csv")
+        descr_class <- descr_08$description[descr_08$category == isco08_class]
 
-      if (income_profile$found) {
-        income_block <- div(
-          headerSection(
-            image = "custom_css/images/economic_capital.png",
-            text = "Income profile"
-          ),
-          progressBar(id = "pb", value = income_profile$position * 10, status = "success", size = "s"),
-          tags$p(paste("You earn more than", income_profile$below, "% of the population and less than", income_profile$above, "% of the population of", input$countryResidence))
+        if (income_profile$found) {
+          income_block <- div(
+            headerSection(
+              image = "custom_css/images/economic_capital.png",
+              text = "Income profile"
+            ),
+            progressBar(id = "pb", value = income_profile$position * 10, status = "success", size = "s"),
+            tags$p(paste("You earn more than", income_profile$below, "% of the population and less than", income_profile$above, "% of the population of", input$countryResidence))
+          )
+        } else {
+          income_block <- div(
+            tags$p("We are not able to locate wages related information for you country of residence. If you'd like to test this functionality, please choose another country of residence, even as a test.")
+          )
+        }
+
+        print("hey")
+        print(isco08_class)
+        print(oesch_class)
+        print(egp_class)
+        print(descr_class)
+        print(income_block)
+
+        # Show a modal dialog after submission
+        showModal(
+          modalDialog(
+            title = "Social Classes and Wage Profile",
+            tags$div(
+              tags$p("Your response has been submitted successfully! 😊 Below you will find your social class according to three standard class schemas:"),
+              tags$ul(
+                tags$li(tags$strong("ISCO-2008 classification")),
+                tags$li(tags$strong("Oesch classification")),
+                tags$li(tags$strong("EGP classification"))
+              ),
+            ),
+            br(),
+            tags$div(
+              class = "social-classes-container",
+              tags$div(
+                class = "class-container",
+                tags$img(src = "custom_css/images/isco_08.png", class = "class-icon"),
+                tags$div(tags$strong(isco08_class), class = "class-label")
+              ),
+              tags$div(
+                class = "class-container",
+                tags$img(src = "custom_css/images/oesch.png", class = "class-icon"),
+                tags$div(tags$strong(oesch_class), class = "class-label")
+              ),
+              tags$div(
+                class = "class-container",
+                tags$img(src = "custom_css/images/egp.png", class = "class-icon"),
+                tags$div(tags$strong(egp_class), class = "class-label")
+              )
+            ),
+            br(),
+            tags$blockquote(descr_class),
+            br(),
+            income_block,
+            easyClose = TRUE,
+            footer = modalButton("Close")
+          )
         )
       } else {
-        income_block <- div(
-          tags$p("We are not able to locate income related information for you country of residence. If you'd like to test this functionality, please choose another country of residence, even as a test.")
+        print("yes")
+        showModal(
+          modalDialog(
+            title = "Social Classes and Wage Profile",
+            tags$div(
+              tags$p("Your response has been submitted successfully! 😊")
+            ),
+            br(),
+            p("Unfortunately, we cannot calculate your social class / income profile as you have never worked before. If you'd like, fill out a hypothetical new survey with a different occupation / income to explore different profiles."),
+            easyClose = TRUE,
+            footer = modalButton("Close")
+          )
         )
       }
-
-      # Show a modal dialog after submission
-      showModal(
-        modalDialog(
-          title = "Social Classes and Income Profile",
-          tags$div(
-            tags$p("Your response has been submitted successfully! 😊 Below you will find your social class according to three standard class schemas:"),
-            tags$ul(
-              tags$li(tags$strong("ISCO-2008 classification")),
-              tags$li(tags$strong("Oesch classification")),
-              tags$li(tags$strong("EGP classification"))
-            ),
-          ),
-          br(),
-          tags$div(
-            class = "social-classes-container",
-            tags$div(
-              class = "class-container",
-              tags$img(src = "custom_css/images/isco_08.png", class = "class-icon"),
-              tags$div(tags$strong(isco08_class), class = "class-label")
-            ),
-            tags$div(
-              class = "class-container",
-              tags$img(src = "custom_css/images/oesch.png", class = "class-icon"),
-              tags$div(tags$strong(oesch_class), class = "class-label")
-            ),
-            tags$div(
-              class = "class-container",
-              tags$img(src = "custom_css/images/egp.png", class = "class-icon"),
-              tags$div(tags$strong(egp_class), class = "class-label")
-            )
-          ),
-          br(),
-          tags$blockquote(descr_class),
-          br(),
-          income_block,
-          easyClose = TRUE,
-          footer = modalButton("Close")
-        )
-      )
     }
   })
 }
 
 shinyApp(ui = ui, server = server)
+
+
+library(shiny)
+
+# Sample data: Image URLs and descriptions
+images <- rep("https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885_1280.jpg", 9)
+descriptions <- paste0("Description for Image ", 1:9)
+
+# Define the default image index here
+defaultImageIndex <- 6
+
+# UI
+ui <- fluidPage(
+  # Load Google Fonts
+  tags$head(
+    tags$link(href = "https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap", rel = "stylesheet"),
+    tags$style(HTML("
+      .img-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+      .img-wrapper {
+        text-align: center;
+        margin: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        border-radius: 10px;
+        overflow: hidden;
+        transition: box-shadow .3s ease;
+      }
+      .img-wrapper:hover {
+        box-shadow: 0 10px 15px rgba(0,0,0,0.2);
+      }
+      .img-button {
+        border: none;
+        padding: 0;
+        background-color: transparent;
+      }
+      .img-button img {
+        max-height: 100px;
+        transition: transform .2s;
+        border-radius: 10px;
+      }
+      .img-button img:hover {
+        transform: scale(1.05);
+      }
+      .img-label {
+        display: block;
+        text-align: center;
+        margin-top: 8px;
+        color: #6c757d;
+      }
+      #description {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 18px;
+        color: #343a40;
+      }
+    "))
+  )
+)
+
+# Server logic
+server <- function(input, output, session) {
+  clickedImageIndex <- reactiveVal(defaultImageIndex)
+  
+  observe({
+    lapply(1:length(images), function(i) {
+      observeEvent(input[[paste("image", i, sep = "-")]], {
+        clickedImageIndex(i)
+      })
+    })
+  })
+  
+  output$modalDescription <- renderText({
+    index <- clickedImageIndex()
+    descriptions[index]
+  })
+  
+  observe({
+    showModal(modalDialog(
+      title = "Image Gallery",
+      div(class = "img-container",
+          lapply(seq_along(images), function(i) {
+            div(class = "img-wrapper",
+                actionButton(inputId = paste("image", i, sep = "-"), 
+                             label = div(
+                               img(src = images[i], class = "action-img"),
+                               span(paste("Image", i), class = "img-label")
+                             ), 
+                             class = "img-button")
+            )
+          })
+      ),
+      textOutput("modalDescription"),
+      size = "l",
+      easyClose = TRUE,
+      fade = TRUE
+    ))
+  })
+}
+
+# Run the app
+shinyApp(ui, server)
